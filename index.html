@@ -1,1 +1,392 @@
-Hello World! Welcome to my website
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SantriCode – Belajar Coding Modern</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script>
+  fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('ip-address').textContent = data.ip;
+    })
+    .catch(() => {
+      document.getElementById('ip-address').textContent = 'Tidak terdeteksi';
+    });
+</script>
+
+<style>
+.glass{
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.15);
+}
+@keyframes float{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-14px)}
+  100%{transform:translateY(0)}
+}
+.float{animation:float 4s ease-in-out infinite}
+</style>
+</head>
+
+<body class="bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e1b4b] text-white">
+
+<!-- ================= NAVBAR ================= -->
+<header x-data="{open:false}" class="fixed top-0 w-full z-50 glass">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <span class="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+      SantriCode
+    </span>
+
+    <nav class="hidden md:flex gap-6 text-sm">
+      <a href="#home" class="hover:text-cyan-400">Home</a>
+      <a href="#artikel" class="hover:text-cyan-400">Artikel</a>
+      <a href="#kelas" class="hover:text-cyan-400">kelas</a>
+      <a href="#footer" class="hover:text-cyan-400">Kontak</a>
+    </nav>
+
+    <button @click="open=!open" class="md:hidden text-2xl">☰</button>
+  </div>
+
+  <div x-show="open" x-transition class="md:hidden px-6 pb-4 glass">
+    <a href="#home" class="block py-2">Home</a>
+    <a href="#artikel" class="block py-2">Artikel</a>
+    <a href="#kelas" class="block py-2">kelas</a>
+    <a href="#footer" class="block py-2">Kontak</a>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section id="home" class="pt-32 pb-24 relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none">
+
+    <!-- FRONTEND -->
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"
+      class="logo-float" style="top:12%; left:8%; animation-duration:7s">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"
+      class="logo-float" style="top:22%; left:82%; animation-duration:9s">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+      class="logo-float" style="top:35%; left:18%; animation-duration:8s">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+      class="logo-float" style="top:48%; left:72%; animation-duration:10s">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" 
+  class="logo-float" style="top:15%; left:25%; animation-duration:8s">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original-wordmark.svg" 
+  class="logo-float" style="top:50%; left:85%; animation-duration:10s">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg" 
+  class="logo-float" style="top:75%; left:20%; animation-duration:12s">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" 
+  class="logo-float" style="top:10%; left:70%; animation-duration:7s">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
+  class="logo-float" style="top:85%; left:60%; animation-duration:11s; filter: invert(1);">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" 
+  class="logo-float" style="top:65%; left:55%; animation-duration:9s">
+
+    <!-- BACKEND -->
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg"
+      class="logo-float" style="top:62%; left:12%; animation-duration:11s">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg"
+      class="logo-float" style="top:70%; left:78%; animation-duration:9s">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg"
+      class="logo-float" style="top:58%; left:45%; animation-duration:12s">
+
+    <!-- DATABASE -->
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"
+      class="logo-float" style="top:30%; left:45%; animation-duration:10s">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg"
+      class="logo-float" style="top:78%; left:35%; animation-duration:13s">
+
+    <!-- DEVOPS -->
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg"
+      class="logo-float" style="top:18%; left:55%; animation-duration:14s">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg"
+      class="logo-float" style="top:42%; left:6%; animation-duration:15s">
+
+  </div>
+
+  <!-- HERO CONTENT -->
+  <div class="relative max-w-3xl mx-auto text-center px-6">
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-4
+    bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+      Belajar Coding dari Nol
+    </h1>
+
+    <p class="text-gray-300 mb-8">
+      Tutorial Laravel, PHP, JavaScript & Web Modern dengan pendekatan sederhana dan islami.
+    </p>
+
+    <a href="#artikel"
+      class="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 hover:scale-105 transition">
+      Mulai Belajar
+    </a>
+  </div>
+</section>
+
+
+<!-- ================= ARTIKEL ================= -->
+<!-- ================= ARTIKEL ================= -->
+<section id="artikel" class="max-w-7xl mx-auto px-6 mb-24">
+  <h2 class="text-2xl font-bold mb-6">📚 Artikel Terbaru</h2>
+
+  <div class="grid md:grid-cols-4 gap-6">
+
+    <!-- ===== CONTENT ARTIKEL ===== -->
+    <div class="md:col-span-3 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+     <div class="glass rounded-2xl overflow-hidden hover:scale-105 transition group">
+  <div class="relative h-44">
+    <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479"
+      class="w-full h-full object-cover group-hover:scale-110 transition">
+    <span class="absolute top-3 left-3 text-xs px-3 py-1 rounded-full bg-cyan-600/80">
+      PHP
+    </span>
+  </div>
+  <div class="p-5">
+    <h3 class="font-bold mb-2">PHP Modern</h3>
+    <p class="text-sm text-gray-300 mb-3">
+      Clean code dan fitur terbaru PHP 8.
+    </p>
+    <span class="text-cyan-400 text-sm">Baca →</span>
+  </div>
+</div>
+
+<div class="glass rounded-2xl overflow-hidden hover:scale-105 transition group">
+  <div class="relative h-44">
+    <img src="https://images.unsplash.com/photo-1619410283995-43d9134e7656"
+      class="w-full h-full object-cover group-hover:scale-110 transition">
+    <span class="absolute top-3 left-3 text-xs px-3 py-1 rounded-full bg-yellow-500/80">
+      JavaScript
+    </span>
+  </div>
+  <div class="p-5">
+    <h3 class="font-bold mb-2">JavaScript ES6</h3>
+    <p class="text-sm text-gray-300 mb-3">
+      Async, fetch API, dan frontend modern.
+    </p>
+    <span class="text-cyan-400 text-sm">Baca →</span>
+  </div>
+</div>
+
+<div class="glass rounded-2xl overflow-hidden hover:scale-105 transition group">
+
+  <!-- COVER -->
+  <div class="relative h-44 overflow-hidden">
+    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c"
+         class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+    <span class="absolute top-3 left-3 px-3 py-1 text-xs rounded-full bg-emerald-600/80">
+      Backend
+    </span>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="p-5">
+    <h3 class="font-bold mb-2">REST API untuk Pemula</h3>
+    <p class="text-sm text-gray-300 mb-3">
+      Membangun API profesional dengan Laravel & best practice.
+    </p>
+    <span class="text-cyan-400 text-sm">Baca →</span>
+  </div>
+
+</div>
+
+
+
+    </div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="space-y-6">
+
+      <!-- CATEGORY -->
+      <div class="glass p-5 rounded-2xl">
+        <h4 class="font-semibold mb-4 text-cyan-400">📂 Kategori</h4>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li class="hover:text-purple-400 cursor-pointer">Laravel</li>
+          <li class="hover:text-purple-400 cursor-pointer">PHP</li>
+          <li class="hover:text-purple-400 cursor-pointer">JavaScript</li>
+          <li class="hover:text-purple-400 cursor-pointer">Frontend</li>
+          <li class="hover:text-purple-400 cursor-pointer">Backend</li>
+          <li class="hover:text-purple-400 cursor-pointer">DevOps</li>
+        </ul>
+      </div>
+
+      <!-- TAGS -->
+      <div class="glass p-5 rounded-2xl">
+        <h4 class="font-semibold mb-4 text-cyan-400">🏷️ Tags</h4>
+        <div class="flex flex-wrap gap-2 text-xs">
+          <span class="px-3 py-1 rounded-full bg-purple-600/30 hover:bg-purple-600 cursor-pointer">Laravel</span>
+          <span class="px-3 py-1 rounded-full bg-cyan-600/30 hover:bg-cyan-600 cursor-pointer">PHP</span>
+          <span class="px-3 py-1 rounded-full bg-emerald-600/30 hover:bg-emerald-600 cursor-pointer">API</span>
+          <span class="px-3 py-1 rounded-full bg-indigo-600/30 hover:bg-indigo-600 cursor-pointer">MySQL</span>
+          <span class="px-3 py-1 rounded-full bg-pink-600/30 hover:bg-pink-600 cursor-pointer">Tailwind</span>
+          <span class="px-3 py-1 rounded-full bg-yellow-600/30 hover:bg-yellow-600 cursor-pointer">JavaScript</span>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</section>
+
+
+<style>
+@keyframes floatSoft {
+  0%   { transform: translate(0,0); }
+  25%  { transform: translate(10px,-14px); }
+  50%  { transform: translate(-8px,10px); }
+  75%  { transform: translate(14px,6px); }
+  100% { transform: translate(0,0); }
+}
+
+.logo-float{
+  position:absolute;
+  width:44px;
+  opacity:.9;
+  animation-name: floatSoft;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.25));
+}
+</style>
+
+
+<!-- ================= kelas ================= -->
+<section id="kelas" class="max-w-7xl mx-auto px-6 mb-24">
+  <h2 class="text-2xl font-bold mb-10 text-center">💎 Harga Kelas</h2>
+
+  <div class="grid md:grid-cols-3 gap-6">
+
+    <div class="glass p-6 rounded-3xl text-center">
+      <h3 class="font-bold text-xl mb-2">Gratis</h3>
+      <p class="text-3xl font-bold mb-4 text-cyan-400">Rp 0</p>
+      <ul class="text-sm space-y-2 mb-6">
+        <li>✔ Artikel dasar</li>
+        <li>✔ Komunitas</li>
+      </ul>
+      <button class="w-full py-2 rounded-xl bg-cyan-500">Mulai</button>
+    </div>
+
+    <div class="glass p-6 rounded-3xl text-center border-2 border-purple-500 scale-105">
+      <h3 class="font-bold text-xl mb-2">Pro</h3>
+      <p class="text-3xl font-bold mb-4 text-purple-400">Rp 199K</p>
+      <ul class="text-sm space-y-2 mb-6">
+        <li>✔ Semua gratis</li>
+        <li>✔ Video course</li>
+        <li>✔ Sertifikat</li>
+      </ul>
+      <button class="w-full py-2 rounded-xl bg-purple-600">Paling Laris</button>
+    </div>
+
+    <div class="glass p-6 rounded-3xl text-center">
+      <h3 class="font-bold text-xl mb-2">Mentor</h3>
+      <p class="text-3xl font-bold mb-4 text-emerald-400">Rp 499K</p>
+      <ul class="text-sm space-y-2 mb-6">
+        <li>✔ Semua Pro</li>
+        <li>✔ Mentoring</li>
+        <li>✔ Project nyata</li>
+      </ul>
+      <button class="w-full py-2 rounded-xl bg-emerald-600">Hubungi</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer id="footer" class="relative mt-32 text-white">
+
+  <!-- WAVES -->
+  <div class="absolute top-0 left-0 w-full overflow-hidden leading-none">
+    <svg class="relative block w-[calc(100%+1.3px)] h-[120px]" 
+         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"
+         preserveAspectRatio="none">
+      <path d="M0,0V46.29c47.79,22,103.59,32.17,158,28
+      70.36-5.37,136.33-33.31,206.8-37.5
+      C438.64,32.43,512.34,53.67,583,72.05
+      c69.27,18,138.3,24.88,209.4,13.08
+      36.15-6,69.85-17.84,104.45-29.34
+      C989.49,25,1113-14.29,1200,52.47V0Z"
+      opacity=".25" fill="#6366f1"></path>
+
+      <path d="M0,0V15.81c13,21.11,27.64,41.05,47.69,56.24
+      C99.41,111.27,165,111,224.58,91.58
+      c31.15-10.15,60.09-26.07,89.67-39.8
+      40.92-19,84.73-46,130.83-49.67
+      36.26-2.85,70.9,9.42,98.6,31.56
+      31.77,25.39,62.32,62,103.63,73
+      40.44,10.79,81.35-6.69,119.13-24.28
+      41-19.1,79.68-45.06,125.35-54.69
+      40.4-8.51,82.23,6.78,121.68,24.72
+      V0Z"
+      opacity=".5" fill="#8b5cf6"></path>
+
+      <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57
+      c43-7.64,84.23-20.12,127.61-26.46
+      59-8.63,112.48,12.24,165.56,35.4
+      C827.93,77.22,886,95.24,951.2,90
+      c86.53-7,172.46-45.71,248.8-84.81V0Z"
+      fill="#22d3ee"></path>
+    </svg>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="relative bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e1b4b] pt-32 pb-10">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8">
+
+      <!-- BRAND -->
+      <div>
+        <h3 class="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+          SantriCode
+        </h3>
+        <p class="text-sm text-gray-300 mt-3">
+          Platform belajar coding modern dengan adab dan ilmu.
+        </p>
+      </div>
+
+      <!-- MENU -->
+      <div>
+        <h4 class="font-semibold mb-3">Menu</h4>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li><a href="#home" class="hover:text-cyan-400">Home</a></li>
+          <li><a href="#artikel" class="hover:text-cyan-400">Artikel</a></li>
+          <li><a href="#kelas" class="hover:text-cyan-400">Kelas</a></li>
+          <li><a href="#stack" class="hover:text-cyan-400">Tech Stack</a></li>
+        </ul>
+      </div>
+
+      <!-- SOCIAL -->
+      <div>
+        <h4 class="font-semibold mb-3">Sosial</h4>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li>Instagram</li>
+          <li>GitHub</li>
+          <li>YouTube</li>
+          <li>Telegram</li>
+        </ul>
+      </div>
+
+      <!-- IP INFO -->
+      <div>
+        <h4 class="font-semibold mb-3">Visitor Info</h4>
+        <p class="text-sm text-gray-300">
+          IP Address:
+          <span id="ip-address" class="text-cyan-400">Loading...</span>
+        </p>
+        <p class="text-xs text-gray-500 mt-2">
+          *IP hanya ditampilkan, tidak disimpan
+        </p>
+      </div>
+
+    </div>
+
+    <div class="text-center text-xs text-gray-500 mt-10">
+      © 2025 SantriCode. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+
+</body>
+</html>
