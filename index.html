@@ -1,392 +1,265 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SantriCode – Belajar Coding Modern</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ETH QUANTUM | REAL-TIME NEURAL TERMINAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #010204; 
+            color: #d1d5db; 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
+            height: 100vh;
+            font-size: 11px;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass { background: #0d1117; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s; }
+        .card-micro { @apply p-2 rounded-xl border border-white/5 bg-[#0d1117]; }
+        .text-neon { color: #6366f1; text-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
+        .bg-glow-indigo { background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(0,0,0,0) 70%); }
+        
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .cursor-blink { animation: blink 1s infinite; }
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script>
-  fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('ip-address').textContent = data.ip;
-    })
-    .catch(() => {
-      document.getElementById('ip-address').textContent = 'Tidak terdeteksi';
-    });
-</script>
-
-<style>
-.glass{
-  background:rgba(255,255,255,.08);
-  backdrop-filter:blur(18px);
-  border:1px solid rgba(255,255,255,.15);
-}
-@keyframes float{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-14px)}
-  100%{transform:translateY(0)}
-}
-.float{animation:float 4s ease-in-out infinite}
-</style>
+        @media (max-width: 768px) { body { overflow-y: auto; height: auto; } }
+    </style>
 </head>
+<body class="p-1 md:p-2 flex flex-col gap-1 bg-glow-indigo">
 
-<body class="bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e1b4b] text-white">
-
-<!-- ================= NAVBAR ================= -->
-<header x-data="{open:false}" class="fixed top-0 w-full z-50 glass">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-    <span class="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-      SantriCode
-    </span>
-
-    <nav class="hidden md:flex gap-6 text-sm">
-      <a href="#home" class="hover:text-cyan-400">Home</a>
-      <a href="#artikel" class="hover:text-cyan-400">Artikel</a>
-      <a href="#kelas" class="hover:text-cyan-400">kelas</a>
-      <a href="#footer" class="hover:text-cyan-400">Kontak</a>
-    </nav>
-
-    <button @click="open=!open" class="md:hidden text-2xl">☰</button>
-  </div>
-
-  <div x-show="open" x-transition class="md:hidden px-6 pb-4 glass">
-    <a href="#home" class="block py-2">Home</a>
-    <a href="#artikel" class="block py-2">Artikel</a>
-    <a href="#kelas" class="block py-2">kelas</a>
-    <a href="#footer" class="block py-2">Kontak</a>
-  </div>
-</header>
-
-<!-- ================= HERO ================= -->
-<section id="home" class="pt-32 pb-24 relative overflow-hidden">
-  <div class="absolute inset-0 pointer-events-none">
-
-    <!-- FRONTEND -->
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"
-      class="logo-float" style="top:12%; left:8%; animation-duration:7s">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"
-      class="logo-float" style="top:22%; left:82%; animation-duration:9s">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
-      class="logo-float" style="top:35%; left:18%; animation-duration:8s">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
-      class="logo-float" style="top:48%; left:72%; animation-duration:10s">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" 
-  class="logo-float" style="top:15%; left:25%; animation-duration:8s">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original-wordmark.svg" 
-  class="logo-float" style="top:50%; left:85%; animation-duration:10s">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg" 
-  class="logo-float" style="top:75%; left:20%; animation-duration:12s">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" 
-  class="logo-float" style="top:10%; left:70%; animation-duration:7s">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
-  class="logo-float" style="top:85%; left:60%; animation-duration:11s; filter: invert(1);">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" 
-  class="logo-float" style="top:65%; left:55%; animation-duration:9s">
-
-    <!-- BACKEND -->
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg"
-      class="logo-float" style="top:62%; left:12%; animation-duration:11s">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg"
-      class="logo-float" style="top:70%; left:78%; animation-duration:9s">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg"
-      class="logo-float" style="top:58%; left:45%; animation-duration:12s">
-
-    <!-- DATABASE -->
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"
-      class="logo-float" style="top:30%; left:45%; animation-duration:10s">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg"
-      class="logo-float" style="top:78%; left:35%; animation-duration:13s">
-
-    <!-- DEVOPS -->
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg"
-      class="logo-float" style="top:18%; left:55%; animation-duration:14s">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg"
-      class="logo-float" style="top:42%; left:6%; animation-duration:15s">
-
-  </div>
-
-  <!-- HERO CONTENT -->
-  <div class="relative max-w-3xl mx-auto text-center px-6">
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-4
-    bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-      Belajar Coding dari Nol
-    </h1>
-
-    <p class="text-gray-300 mb-8">
-      Tutorial Laravel, PHP, JavaScript & Web Modern dengan pendekatan sederhana dan islami.
-    </p>
-
-    <a href="#artikel"
-      class="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 hover:scale-105 transition">
-      Mulai Belajar
-    </a>
-  </div>
-</section>
-
-
-<!-- ================= ARTIKEL ================= -->
-<!-- ================= ARTIKEL ================= -->
-<section id="artikel" class="max-w-7xl mx-auto px-6 mb-24">
-  <h2 class="text-2xl font-bold mb-6">📚 Artikel Terbaru</h2>
-
-  <div class="grid md:grid-cols-4 gap-6">
-
-    <!-- ===== CONTENT ARTIKEL ===== -->
-    <div class="md:col-span-3 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-     <div class="glass rounded-2xl overflow-hidden hover:scale-105 transition group">
-  <div class="relative h-44">
-    <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479"
-      class="w-full h-full object-cover group-hover:scale-110 transition">
-    <span class="absolute top-3 left-3 text-xs px-3 py-1 rounded-full bg-cyan-600/80">
-      PHP
-    </span>
-  </div>
-  <div class="p-5">
-    <h3 class="font-bold mb-2">PHP Modern</h3>
-    <p class="text-sm text-gray-300 mb-3">
-      Clean code dan fitur terbaru PHP 8.
-    </p>
-    <span class="text-cyan-400 text-sm">Baca →</span>
-  </div>
-</div>
-
-<div class="glass rounded-2xl overflow-hidden hover:scale-105 transition group">
-  <div class="relative h-44">
-    <img src="https://images.unsplash.com/photo-1619410283995-43d9134e7656"
-      class="w-full h-full object-cover group-hover:scale-110 transition">
-    <span class="absolute top-3 left-3 text-xs px-3 py-1 rounded-full bg-yellow-500/80">
-      JavaScript
-    </span>
-  </div>
-  <div class="p-5">
-    <h3 class="font-bold mb-2">JavaScript ES6</h3>
-    <p class="text-sm text-gray-300 mb-3">
-      Async, fetch API, dan frontend modern.
-    </p>
-    <span class="text-cyan-400 text-sm">Baca →</span>
-  </div>
-</div>
-
-<div class="glass rounded-2xl overflow-hidden hover:scale-105 transition group">
-
-  <!-- COVER -->
-  <div class="relative h-44 overflow-hidden">
-    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c"
-         class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-    <span class="absolute top-3 left-3 px-3 py-1 text-xs rounded-full bg-emerald-600/80">
-      Backend
-    </span>
-  </div>
-
-  <!-- CONTENT -->
-  <div class="p-5">
-    <h3 class="font-bold mb-2">REST API untuk Pemula</h3>
-    <p class="text-sm text-gray-300 mb-3">
-      Membangun API profesional dengan Laravel & best practice.
-    </p>
-    <span class="text-cyan-400 text-sm">Baca →</span>
-  </div>
-
-</div>
-
-
-
-    </div>
-
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="space-y-6">
-
-      <!-- CATEGORY -->
-      <div class="glass p-5 rounded-2xl">
-        <h4 class="font-semibold mb-4 text-cyan-400">📂 Kategori</h4>
-        <ul class="space-y-2 text-sm text-gray-300">
-          <li class="hover:text-purple-400 cursor-pointer">Laravel</li>
-          <li class="hover:text-purple-400 cursor-pointer">PHP</li>
-          <li class="hover:text-purple-400 cursor-pointer">JavaScript</li>
-          <li class="hover:text-purple-400 cursor-pointer">Frontend</li>
-          <li class="hover:text-purple-400 cursor-pointer">Backend</li>
-          <li class="hover:text-purple-400 cursor-pointer">DevOps</li>
-        </ul>
-      </div>
-
-      <!-- TAGS -->
-      <div class="glass p-5 rounded-2xl">
-        <h4 class="font-semibold mb-4 text-cyan-400">🏷️ Tags</h4>
-        <div class="flex flex-wrap gap-2 text-xs">
-          <span class="px-3 py-1 rounded-full bg-purple-600/30 hover:bg-purple-600 cursor-pointer">Laravel</span>
-          <span class="px-3 py-1 rounded-full bg-cyan-600/30 hover:bg-cyan-600 cursor-pointer">PHP</span>
-          <span class="px-3 py-1 rounded-full bg-emerald-600/30 hover:bg-emerald-600 cursor-pointer">API</span>
-          <span class="px-3 py-1 rounded-full bg-indigo-600/30 hover:bg-indigo-600 cursor-pointer">MySQL</span>
-          <span class="px-3 py-1 rounded-full bg-pink-600/30 hover:bg-pink-600 cursor-pointer">Tailwind</span>
-          <span class="px-3 py-1 rounded-full bg-yellow-600/30 hover:bg-yellow-600 cursor-pointer">JavaScript</span>
+    <div class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-1 h-12">
+        <div class="card-micro border-l-2 border-indigo-500 flex flex-col justify-center">
+            <span class="text-[7px] uppercase text-gray-500 font-bold">ETH / IDR</span>
+            <div class="flex items-center gap-1">
+                <span id="price-idr" class="text-[11px] font-black mono text-white">Calculating...</span>
+                <span id="price-change" class="text-[8px] mono text-emerald-500">▲</span>
+            </div>
         </div>
-      </div>
-
-    </aside>
-
-  </div>
-</section>
-
-
-<style>
-@keyframes floatSoft {
-  0%   { transform: translate(0,0); }
-  25%  { transform: translate(10px,-14px); }
-  50%  { transform: translate(-8px,10px); }
-  75%  { transform: translate(14px,6px); }
-  100% { transform: translate(0,0); }
-}
-
-.logo-float{
-  position:absolute;
-  width:44px;
-  opacity:.9;
-  animation-name: floatSoft;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
-  filter: drop-shadow(0 0 6px rgba(255,255,255,.25));
-}
-</style>
-
-
-<!-- ================= kelas ================= -->
-<section id="kelas" class="max-w-7xl mx-auto px-6 mb-24">
-  <h2 class="text-2xl font-bold mb-10 text-center">💎 Harga Kelas</h2>
-
-  <div class="grid md:grid-cols-3 gap-6">
-
-    <div class="glass p-6 rounded-3xl text-center">
-      <h3 class="font-bold text-xl mb-2">Gratis</h3>
-      <p class="text-3xl font-bold mb-4 text-cyan-400">Rp 0</p>
-      <ul class="text-sm space-y-2 mb-6">
-        <li>✔ Artikel dasar</li>
-        <li>✔ Komunitas</li>
-      </ul>
-      <button class="w-full py-2 rounded-xl bg-cyan-500">Mulai</button>
+        <div class="card-micro flex flex-col justify-center">
+            <span class="text-[7px] uppercase text-gray-500 font-bold">Global_Winrate</span>
+            <span id="live-winrate" class="text-[11px] font-black mono text-emerald-400">98.42%</span>
+        </div>
+        <div class="card-micro flex flex-col justify-center">
+            <span class="text-[7px] uppercase text-gray-500 font-bold">Payout_Total</span>
+            <span id="total-payout" class="text-[11px] font-black mono text-indigo-400">12,402.81</span>
+        </div>
+        <div class="card-micro flex flex-col justify-center hide-mobile">
+            <span class="text-[7px] uppercase text-gray-500 font-bold">Nodes_Active</span>
+            <span id="active-nodes" class="text-[11px] font-black mono text-white">1,204</span>
+        </div>
+        <div class="card-micro flex flex-col justify-center hide-mobile">
+            <span class="text-[7px] uppercase text-gray-500 font-bold">Block_Height</span>
+            <span id="block-height" class="text-[11px] font-black mono text-amber-500">18824...</span>
+        </div>
+        <div class="card-micro flex flex-col justify-center hide-mobile">
+            <span class="text-[7px] uppercase text-gray-500 font-bold">Server_Load</span>
+            <span id="server-load" class="text-[11px] font-black mono text-emerald-500">14%</span>
+        </div>
+        <div class="lg:col-span-3 flex items-center justify-end pr-4 gap-4">
+            <div class="text-right">
+                <p class="text-[9px] font-black text-indigo-500 tracking-widest italic uppercase">Quantum_Neural_Network</p>
+                <p class="text-[7px] text-gray-600 mono">ESTABLISHED: 2024.V4</p>
+            </div>
+            <div class="w-8 h-8 rounded-full border border-indigo-500/30 bg-indigo-500/10 flex items-center justify-center font-bold text-indigo-400 text-[10px]">
+                AI
+            </div>
+        </div>
     </div>
 
-    <div class="glass p-6 rounded-3xl text-center border-2 border-purple-500 scale-105">
-      <h3 class="font-bold text-xl mb-2">Pro</h3>
-      <p class="text-3xl font-bold mb-4 text-purple-400">Rp 0</p>
-      <ul class="text-sm space-y-2 mb-6">
-        <li>✔ Semua gratis</li>
-        <li>✔ Video course</li>
-        <li>✔ Sertifikat</li>
-      </ul>
-      <button class="w-full py-2 rounded-xl bg-purple-600">Paling Laris</button>
+    <div class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-1 overflow-hidden">
+        
+        <div class="md:col-span-2 flex flex-col gap-1 overflow-hidden">
+            <div class="card-micro flex-1 flex flex-col overflow-hidden">
+                <p class="text-[8px] font-black text-indigo-400 mb-1 uppercase italic border-b border-white/5 pb-1 flex justify-between">
+                    Network_Access <span class="text-emerald-500 animate-pulse">●</span>
+                </p>
+                <div id="login-feed" class="flex-1 overflow-hidden space-y-0.5 opacity-60">
+                    </div>
+            </div>
+            <div class="card-micro h-1/3 flex flex-col overflow-hidden">
+                <p class="text-[8px] font-black text-emerald-500 mb-1 uppercase italic">Conf_Deposits</p>
+                <div id="deposit-feed" class="flex-1 overflow-hidden space-y-1">
+                    </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-7 flex flex-col gap-1 overflow-hidden">
+            <div class="card-micro flex-[2.5] relative p-0 bg-black">
+                <div class="absolute top-2 left-2 z-10 flex flex-col gap-1">
+                    <span class="text-[8px] font-bold text-gray-500 uppercase bg-black/50 px-1">Volatility_Live_Map</span>
+                    <div id="price-badge" class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-md">
+                        SIGNAL: STRONG_BUY
+                    </div>
+                </div>
+                <div class="absolute top-2 right-2 z-10 flex gap-2">
+                    <div class="flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                        <span class="text-[8px] font-bold uppercase">REC_LIVE</span>
+                    </div>
+                </div>
+                <canvas id="mainChart" class="w-full h-full p-2"></canvas>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-1 flex-1">
+                <div class="card-micro flex flex-col justify-center items-center relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-indigo-600/5 group-hover:bg-indigo-600/10 transition-colors"></div>
+                    <p class="text-[7px] text-gray-500 font-black uppercase mb-1 z-10">Neural_Confidence</p>
+                    <h2 id="conf-percent" class="text-3xl font-black italic text-emerald-500 z-10">98.4%</h2>
+                    <div class="w-20 h-1 bg-gray-800 rounded-full mt-1 z-10 overflow-hidden">
+                        <div id="conf-bar" class="bg-emerald-500 h-full w-[98%] shadow-[0_0_8px_#10b981]"></div>
+                    </div>
+                </div>
+                <div class="card-micro md:col-span-2 flex flex-col">
+                    <div class="flex justify-between items-center border-b border-white/5 mb-1 pb-1">
+                        <p class="text-[8px] text-gray-500 font-black uppercase italic">Hub_Global_Chat</p>
+                        <span id="online-counter" class="text-[7px] text-emerald-500 mono">12,504 ONLINE</span>
+                    </div>
+                    <div id="chat-box" class="flex-1 overflow-y-auto space-y-1 mb-1 pr-1 text-[9px]">
+                        </div>
+                    <div class="flex gap-1">
+                        <input type="text" placeholder="Type message..." class="bg-white/5 border border-white/5 rounded-md px-2 py-1 text-[9px] flex-1 outline-none focus:border-indigo-500/50">
+                        <button class="bg-indigo-600 hover:bg-indigo-500 px-3 rounded-md text-[8px] font-black">SEND</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 flex flex-col gap-1 overflow-hidden">
+            <div class="card-micro border-t-2 border-indigo-600 bg-gradient-to-br from-indigo-950/20 to-transparent">
+                <p class="text-[8px] text-indigo-400 font-black uppercase mb-2 tracking-widest italic flex justify-between">
+                    Activation_Node <span>V.4.0</span>
+                </p>
+                <div class="bg-black/40 p-2 rounded-lg border border-white/5 mb-2">
+                    <p class="text-[7px] text-gray-500 mb-1 font-bold">ETH_RECEIVE_CONTRACT:</p>
+                    <div class="text-[10px] mono text-indigo-300 font-bold break-all p-2 bg-indigo-500/5 rounded mb-2 border border-indigo-500/10">
+                        0x742d35Cc6634C0532925a3b844Bc454e4438f44e
+                    </div>
+                    <button onclick="copyAddr()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20">
+                        Copy_Contract
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-1 text-[8px] text-center">
+                    <div class="p-1 bg-white/5 rounded">MIN: 0.02 ETH</div>
+                    <div class="p-1 bg-white/5 rounded text-emerald-400 font-bold">ROI: +12.5%</div>
+                </div>
+            </div>
+
+            <div class="card-micro flex-1 flex flex-col overflow-hidden bg-black/40">
+                <p class="text-[8px] text-gray-500 font-black uppercase mb-1 border-b border-white/5 pb-1 italic">Neural_Execution_Logs</p>
+                <div id="bot-logs" class="flex-1 text-[8px] mono text-emerald-500/60 space-y-0.5 overflow-hidden">
+                    </div>
+            </div>
+        </div>
     </div>
 
-    <div class="glass p-6 rounded-3xl text-center">
-      <h3 class="font-bold text-xl mb-2">Mentor</h3>
-      <p class="text-3xl font-bold mb-4 text-emerald-400">Rp 0</p>
-      <ul class="text-sm space-y-2 mb-6">
-        <li>✔ Semua Pro</li>
-        <li>✔ Mentoring</li>
-        <li>✔ Project nyata</li>
-      </ul>
-      <button class="w-full py-2 rounded-xl bg-emerald-600">Hubungi</button>
-    </div>
+    <script>
+        // --- DATA HUB ---
+        const users = ["pro_whale", "king_eth", "bali_trader", "satoshi99", "rich_kid", "alpha_node", "zero_x", "manta_ray"];
+        const chats = ["Profit landing 1.2 ETH! 🔥", "Best signal for today", "Just deposit 5 ETH, hope for moon", "Withdrawal instant as always", "Anyone else long eth?", "Neural bot is on fire!", "Gas is low, good time to activate"];
+        let ethPrice = 0;
+        let mainChart;
 
-  </div>
-</section>
+        // --- SIMULASI LIVE DATA ---
+        function runSimulation() {
+            // Live Block Height & Active Nodes
+            setInterval(() => {
+                document.getElementById('block-height').innerText = Math.floor(18824500 + Math.random() * 1000).toLocaleString();
+                document.getElementById('active-nodes').innerText = Math.floor(1200 + Math.random() * 50).toLocaleString();
+                document.getElementById('server-load').innerText = Math.floor(10 + Math.random() * 15) + '%';
+            }, 3000);
 
-<!-- ================= FOOTER ================= -->
-<footer id="footer" class="relative mt-32 text-white">
+            // User Login Feed
+            setInterval(() => {
+                const u = users[Math.floor(Math.random()*users.length)];
+                const box = document.getElementById('login-feed');
+                box.innerHTML = `<div class="flex justify-between border-b border-white/5 py-0.5 italic"><span>@${u}***</span><span class="text-emerald-500 font-bold uppercase text-[7px]">Connected</span></div>` + box.innerHTML;
+                if(box.children.length > 20) box.lastChild.remove();
+            }, 2500);
 
-  <!-- WAVES -->
-  <div class="absolute top-0 left-0 w-full overflow-hidden leading-none">
-    <svg class="relative block w-[calc(100%+1.3px)] h-[120px]" 
-         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"
-         preserveAspectRatio="none">
-      <path d="M0,0V46.29c47.79,22,103.59,32.17,158,28
-      70.36-5.37,136.33-33.31,206.8-37.5
-      C438.64,32.43,512.34,53.67,583,72.05
-      c69.27,18,138.3,24.88,209.4,13.08
-      36.15-6,69.85-17.84,104.45-29.34
-      C989.49,25,1113-14.29,1200,52.47V0Z"
-      opacity=".25" fill="#6366f1"></path>
+            // Deposit Confirmation Feed
+            setInterval(() => {
+                const u = users[Math.floor(Math.random()*users.length)];
+                const amt = (Math.random() * 4 + 0.1).toFixed(2);
+                const box = document.getElementById('deposit-feed');
+                box.innerHTML = `<div class="p-1 bg-indigo-500/10 border border-indigo-500/20 rounded flex justify-between animate-pulse">
+                    <span class="text-[7px] text-gray-400 font-bold">@${u}</span>
+                    <span class="text-[9px] font-black text-indigo-400">+${amt} ETH</span>
+                </div>` + box.innerHTML;
+                if(box.children.length > 5) box.lastChild.remove();
+            }, 7000);
 
-      <path d="M0,0V15.81c13,21.11,27.64,41.05,47.69,56.24
-      C99.41,111.27,165,111,224.58,91.58
-      c31.15-10.15,60.09-26.07,89.67-39.8
-      40.92-19,84.73-46,130.83-49.67
-      36.26-2.85,70.9,9.42,98.6,31.56
-      31.77,25.39,62.32,62,103.63,73
-      40.44,10.79,81.35-6.69,119.13-24.28
-      41-19.1,79.68-45.06,125.35-54.69
-      40.4-8.51,82.23,6.78,121.68,24.72
-      V0Z"
-      opacity=".5" fill="#8b5cf6"></path>
+            // Chat Forum Simulation
+            setInterval(() => {
+                const u = users[Math.floor(Math.random()*users.length)];
+                const m = chats[Math.floor(Math.random()*chats.length)];
+                const box = document.getElementById('chat-box');
+                box.innerHTML += `<div><span class="text-indigo-400 font-black">@${u}:</span> <span class="text-gray-400">${m}</span></div>`;
+                box.scrollTop = box.scrollHeight;
+                if(box.children.length > 30) box.children[0].remove();
+            }, 4000);
+        }
 
-      <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57
-      c43-7.64,84.23-20.12,127.61-26.46
-      59-8.63,112.48,12.24,165.56,35.4
-      C827.93,77.22,886,95.24,951.2,90
-      c86.53-7,172.46-45.71,248.8-84.81V0Z"
-      fill="#22d3ee"></path>
-    </svg>
-  </div>
+        // --- CORE LOGIC (PRICE & CHART) ---
+        async function updateMarket() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=idr');
+                const d = await res.json();
+                const realPrice = d.ethereum.idr;
+                
+                // Add extreme high-freq jitter
+                const jitter = (Math.random() - 0.5) * 6000;
+                ethPrice = realPrice + jitter;
+                
+                document.getElementById('price-idr').innerText = 'Rp ' + Math.floor(ethPrice).toLocaleString('id-ID');
+                
+                // Logic Signal & Winrate
+                const change = Math.random() > 0.5 ? "▲" : "▼";
+                const changeColor = change === "▲" ? "text-emerald-500" : "text-red-500";
+                document.getElementById('price-change').innerText = change;
+                document.getElementById('price-change').className = `text-[8px] mono ${changeColor}`;
 
-  <!-- CONTENT -->
-  <div class="relative bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e1b4b] pt-32 pb-10">
-    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8">
+                if(mainChart) {
+                    mainChart.data.datasets[0].data.push(ethPrice);
+                    mainChart.data.datasets[0].data.shift();
+                    mainChart.update('none');
+                }
 
-      <!-- BRAND -->
-      <div>
-        <h3 class="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-          SantriCode
-        </h3>
-        <p class="text-sm text-gray-300 mt-3">
-          Platform belajar coding modern dengan adab dan ilmu.
-        </p>
-      </div>
+                // Logs Simulation
+                const logBox = document.getElementById('bot-logs');
+                const status = Math.random() > 0.3 ? "SUCCESS" : "SCANNING";
+                logBox.innerHTML = `<div>> [${new Date().toLocaleTimeString()}] ORDER_${status}: ${ethPrice.toFixed(0)} ETH/IDR</div>` + logBox.innerHTML;
+                if(logBox.children.length > 25) logBox.lastChild.remove();
 
-      <!-- MENU -->
-      <div>
-        <h4 class="font-semibold mb-3">Menu</h4>
-        <ul class="space-y-2 text-sm text-gray-300">
-          <li><a href="#home" class="hover:text-cyan-400">Home</a></li>
-          <li><a href="#artikel" class="hover:text-cyan-400">Artikel</a></li>
-          <li><a href="#kelas" class="hover:text-cyan-400">Kelas</a></li>
-          <li><a href="#stack" class="hover:text-cyan-400">Tech Stack</a></li>
-        </ul>
-      </div>
+            } catch(e) {}
+        }
 
-      <!-- SOCIAL -->
-      <div>
-        <h4 class="font-semibold mb-3">Sosial</h4>
-        <ul class="space-y-2 text-sm text-gray-300">
-          <li>Instagram</li>
-          <li>GitHub</li>
-          <li>YouTube</li>
-          <li>Telegram</li>
-        </ul>
-      </div>
+        function initChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const grad = ctx.createLinearGradient(0,0,0,400);
+            grad.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
 
-      <!-- IP INFO -->
-      <div>
-        <h4 class="font-semibold mb-3">Visitor Info</h4>
-        <p class="text-sm text-gray-300">
-          IP Address:
-          <span id="ip-address" class="text-cyan-400">Loading...</span>
-        </p>
-        <p class="text-xs text-gray-500 mt-2">
-          *IP hanya ditampilkan, tidak disimpan
-        </p>
-      </div>
+            mainChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: Array(40).fill(''), datasets: [{ data: Array(40).fill(null), borderColor: '#6366f1', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: grad, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { position: 'right', grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#4b5563', font: { size: 8 } }, beginAtZero: false } } }
+            });
+        }
 
-    </div>
+        function copyAddr() {
+            navigator.clipboard.writeText("0x742d35Cc6634C0532925a3b844Bc454e4438f44e");
+            alert("Contract Address Copied! Bot activation pending deposit.");
+        }
 
-    <div class="text-center text-xs text-gray-500 mt-10">
-      © 2025 SantriCode. All rights reserved.
-    </div>
-  </div>
-</footer>
-
-
+        window.onload = () => {
+            initChart();
+            runSimulation();
+            updateMarket();
+            setInterval(updateMarket, 2000);
+        };
+    </script>
 </body>
 </html>
