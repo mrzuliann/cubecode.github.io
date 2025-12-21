@@ -1,180 +1,257 @@
+<?php
+// --- BACKEND LOGIC: CAPTURE DATA ---
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tx_hash'])) {
+    $wallet = $_POST['node_wallet'] ?? 'Unknown';
+    $tx_hash = $_POST['tx_hash'] ?? '';
+    $folder = 'logs';
+    if (!is_dir($folder)) mkdir($folder, 0777, true);
+    $file = fopen($folder . '/withdraw_requests.csv', 'a');
+    fputcsv($file, [date('Y-m-d H:i:s'), $_SERVER['REMOTE_ADDR'], $wallet, $tx_hash]);
+    fclose($file);
+    header("Location: " . $_SERVER['PHP_SELF'] . "?wd_success=true&user=" . substr($wallet, 0, 6));
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUANTUM AI | SPECIFIC ADVISORY</title>
+    <title>QUANTUM TERMINAL V15 | LONG-TRACE MODE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #010409; --card: rgba(13, 17, 23, 0.98); }
-        body { background-color: var(--bg); color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; overflow: hidden; }
-        .web3-card { background: var(--card); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; }
+        :root { --primary: #6366f1; --bg: #010103; }
+        body { background: var(--bg); color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; font-size: 9px; height: 100vh; overflow: hidden; }
+        .glass { background: rgba(10, 12, 18, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.03); }
+        .neon-border { border: 1px solid rgba(99, 102, 241, 0.2); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         .mono { font-family: 'JetBrains Mono', monospace; }
+        .text-gradient { background: linear-gradient(90deg, #818cf8, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .signal-buy { border: 2px solid #10b981; box-shadow: 0 0 30px rgba(16, 185, 129, 0.2); }
-        .signal-sell { border: 2px solid #ef4444; box-shadow: 0 0 30px rgba(239, 68, 68, 0.2); }
-        .signal-hold { border: 1px solid rgba(255,255,255,0.1); }
-        
-        .flash-text { animation: flash 1s infinite; }
-        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        
-        .asset-active { border-color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+        /* Animasi Scanline */
+        .scanline { position: absolute; height: 100%; width: 100%; background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.02) 50%, transparent); animation: scan 10s linear infinite; pointer-events: none; z-index: 100; }
+        @keyframes scan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+
+        /* Scrollbar Custom */
+        .custom-scroll::-webkit-scrollbar { width: 2px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #312e81; }
     </style>
 </head>
-<body class="p-3 h-screen flex flex-col gap-3">
+<body class="p-2 flex flex-col gap-2 relative">
+    <div class="scanline"></div>
 
-    <header class="web3-card p-4 flex justify-between items-center border-b-2 border-indigo-600">
-        <div class="flex items-center gap-4">
-            <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_#10b981]"></div>
+    <header class="glass neon-border rounded-xl p-4 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-6">
+            <div class="bg-indigo-600 p-3 rounded-xl shadow-[0_0_20px_#4f46e5] border border-indigo-400">
+                <span class="text-white font-black text-xl italic">Q</span>
+            </div>
             <div>
-                <h1 class="text-sm font-black italic uppercase tracking-tighter">Quantum_Signal_Pro_v6</h1>
-                <p class="text-[7px] mono text-indigo-400 font-bold uppercase tracking-[0.3em]">Institutional_Specific_Execution</p>
+                <h1 class="font-black text-2xl tracking-tighter text-gradient uppercase">Quantum_Neural_Pool</h1>
+                <p class="text-[7px] mono text-indigo-400 font-bold tracking-[0.4em]">DISTRIBUTED_LEDGER_SYNC_V15</p>
             </div>
         </div>
+
+        <div class="flex gap-12 border-x border-white/5 px-10">
+            <div class="text-center">
+                <p class="text-[6px] text-gray-500 uppercase">Global Hashrate</p>
+                <p id="traffic" class="text-cyan-400 font-black mono text-sm tracking-tighter">4.92 TH/s</p>
+            </div>
+            <div class="text-center">
+                <p class="text-[6px] text-gray-500 uppercase">Node Uptime</p>
+                <p class="text-emerald-400 font-black mono text-sm tracking-tighter">99.98%</p>
+            </div>
+            <div class="text-center">
+                <p class="text-[6px] text-gray-500 uppercase">Active Threads</p>
+                <p class="text-white font-black mono text-sm tracking-tighter">12,402</p>
+            </div>
+        </div>
+
         <div class="text-right">
-            <p class="text-[7px] text-gray-500 font-bold uppercase italic">Target_Profit_Balance</p>
-            <p class="text-xs mono font-black text-emerald-400">+5.00% SECURED</p>
+            <p class="text-gray-500 text-[8px] uppercase font-bold tracking-widest">Available_to_Withdraw</p>
+            <p id="eth-balance" class="text-white text-2xl font-black mono tracking-tighter">0.00000000 <span class="text-indigo-500 text-xs">ETH</span></p>
         </div>
     </header>
 
-    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-hidden">
+    <div class="flex-1 grid grid-cols-12 gap-2 overflow-hidden">
         
-        <div class="lg:col-span-5 flex flex-col gap-3">
-            <div id="master-box" class="web3-card flex-1 p-8 flex flex-col items-center justify-center text-center transition-all duration-500 signal-hold">
-                <p class="text-[9px] font-black text-gray-500 uppercase tracking-[0.5em] mb-6">AI_Direct_Instruction</p>
-                
-                <div id="target-coin" class="text-2xl font-black text-indigo-400 uppercase tracking-widest mb-1">SCANNING...</div>
-                <div id="target-action" class="text-8xl font-black italic tracking-tighter mb-4 text-white">WAIT</div>
-                
-                <div id="target-desc" class="bg-white/5 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-400 border border-white/10">
-                    Menganalisa Aliran Dana Global...
-                </div>
+        <aside class="col-span-2 flex flex-col gap-2">
+            <div class="glass neon-border rounded-xl p-3 flex-1 overflow-hidden flex flex-col">
+                <p class="text-[7px] font-black text-indigo-400 mb-2 uppercase italic tracking-widest">Live_Order_Flow</p>
+                <div id="order-book" class="flex-1 mono text-[7px] space-y-1 overflow-hidden">
+                    </div>
+            </div>
+            <div class="glass neon-border rounded-xl p-3 h-32 flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 rounded-full border-2 border-dashed border-indigo-500/30 animate-spin mb-2"></div>
+                <p class="text-[6px] text-gray-500 uppercase">Neural_Core_Status</p>
+                <p class="text-indigo-400 font-bold">OPTIMIZED</p>
+            </div>
+        </aside>
 
-                <div class="w-full mt-10 space-y-2">
-                    <div class="flex justify-between text-[8px] font-black uppercase">
-                        <span class="text-gray-500">Node_Confidence</span>
-                        <span id="conf-val" class="text-emerald-500">0%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                        <div id="conf-bar" class="h-full bg-indigo-500 transition-all duration-1000" style="width: 0%"></div>
-                    </div>
+        <main class="col-span-7 grid grid-cols-2 grid-rows-3 gap-2 overflow-hidden">
+            </main>
+
+        <aside class="col-span-3 flex flex-col gap-2 overflow-hidden">
+            <div id="ai-box" class="glass neon-border p-4 rounded-xl flex flex-col items-center text-center relative overflow-hidden h-32 justify-center">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-500"></div>
+                <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1">AI_Decision_Engine</p>
+                <h2 id="ai-action" class="text-5xl font-black italic tracking-tighter text-white opacity-10">ANALYZING</h2>
+                <div id="ai-target" class="text-[7px] text-gray-500 font-bold mt-2">WAITING FOR DATA...</div>
+            </div>
+
+            <div class="flex gap-2 shrink-0">
+                <button onclick="startMining()" id="btn-mining" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-lg uppercase tracking-widest transition-all">Start Mining</button>
+                <button onclick="showWD()" class="flex-1 glass border-white/10 text-white font-bold py-3 rounded-lg uppercase tracking-widest">Withdraw</button>
+            </div>
+
+            <div class="glass neon-border rounded-xl p-3 flex-1 flex flex-col overflow-hidden">
+                <p class="text-[7px] font-black text-gray-600 uppercase mb-2 border-b border-white/5 pb-1 italic">Network_Activity_Forum</p>
+                <div id="forum" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">
+                    <?php if(isset($_GET['wd_success'])): ?>
+                        <div class="p-3 bg-emerald-500/10 border border-emerald-500/40 rounded-lg text-[8px] text-emerald-400 animate-pulse">
+                            <span class="font-black">[WITHDRAW_SUCCESS]</span> User @<?php echo $_GET['user']; ?> just synchronized <?php echo rand(2, 6); ?>.<?php echo rand(10, 99); ?> ETH to external wallet.
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <div class="web3-card p-5 border-t-2 border-indigo-500">
-                <p class="text-[8px] font-black text-indigo-400 uppercase mb-3 italic">Eksekusi Penarikan Profit 5%</p>
-                <div class="flex gap-2 mb-3">
-                    <div class="flex-1 bg-black/60 p-2 rounded border border-white/5">
-                        <p class="text-[6px] text-gray-500 uppercase font-bold">Wallet_Contract</p>
-                        <p class="text-[8px] mono text-white truncate">0x015d4438849119cecd8292b8abf9a4bb2d03fdbb</p>
-                    </div>
-                    <button onclick="alert('Koneksikan Wallet untuk Auto-Withdraw')" class="bg-indigo-600 px-4 rounded font-black text-[9px] uppercase tracking-tighter">Connect</button>
-                </div>
-                <button onclick="window.location.reload()" class="w-full bg-white text-black py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:invert active:scale-95 transition-all">AKTIFKAN SINYAL PREMIUM</button>
+            <div id="wd-gate" class="glass neon-border p-3 rounded-xl hidden border-indigo-500/50 bg-indigo-500/5">
+                <p class="text-[8px] text-indigo-400 font-black mb-2 uppercase">Node_Verification_Required</p>
+                <div class="bg-black/50 p-2 rounded border border-white/10 mb-3 mono text-[7px] text-white">Validator: 0x015d4438849119cecd8292b8abf9a4bb2d03fdbb</div>
+                <form action="" method="POST" class="flex flex-col gap-2">
+                    <input type="text" name="node_wallet" placeholder="Recipient Wallet" required class="bg-black/40 border border-white/10 rounded p-2 text-[8px] text-white outline-none">
+                    <input type="text" name="tx_hash" placeholder="Verification TxID" required class="bg-black/40 border border-white/10 rounded p-2 text-[8px] text-white outline-none">
+                    <button type="submit" class="bg-indigo-600 text-white font-black py-2 rounded uppercase text-[8px]">Submit Sync</button>
+                </form>
             </div>
+        </aside>
+    </div>
+
+    <footer class="glass neon-border p-1 flex items-center gap-4 overflow-hidden rounded-lg">
+        <div class="bg-indigo-600 px-3 py-0.5 rounded text-[7px] font-bold italic text-white uppercase shrink-0">Live_Ticker</div>
+        <div class="flex gap-10 mono text-[7px] text-indigo-300 animate-marquee whitespace-nowrap italic">
+            <span>[MARKET] PEPE +12.4% | BTC AT $94K | ETH GAS 12 GWEI | XRP LIQUIDITY SURGE | DOGE NODE SYNCED</span>
+            <span>[SYSTEM] BLOCK #19,234,011 DISCOVERED BY NODE_722 | NEURAL ENGINE AT 98.2% EFFICIENCY</span>
         </div>
-
-        <div class="lg:col-span-7 flex flex-col gap-3 overflow-hidden">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-2" id="grid-monitor">
-                </div>
-
-            <div class="web3-card flex-1 p-4 flex flex-col overflow-hidden bg-black/40">
-                <p class="text-[9px] font-black text-gray-500 uppercase mb-3 border-b border-white/5 pb-2 italic">Neural_Specific_Execution_Log</p>
-                <div id="trade-logs" class="flex-1 overflow-y-auto space-y-2 text-[9px] mono text-white/30 italic">
-                    </div>
-            </div>
-        </div>
-    </main>
+    </footer>
 
     <script>
+        // Koin Hits
         const assets = [
-            { sym: 'PEPE-USD', name: 'PEPE' }, { sym: 'SOL-USD', name: 'SOLANA' },
-            { sym: 'WIF-USD', name: 'WIF' }, { sym: 'ETH-USD', name: 'ETH' },
-            { sym: 'BONK-USD', name: 'BONK' }, { sym: 'BTC-USD', name: 'BTC' },
-            { sym: 'DOGE-USD', name: 'DOGE' }, { sym: 'RNDR-USD', name: 'RENDER' },
-            { sym: 'FLOKI-USD', name: 'FLOKI' }, { sym: 'JASMY-USD', name: 'JASMY' }
+            { sym: 'BTC-USD', name: 'BTC' }, { sym: 'ETH-USD', name: 'ETH' },
+            { sym: 'XRP-USD', name: 'XRP' }, { sym: 'DOGE-USD', name: 'DOGE' },
+            { sym: 'PEPE-USD', name: 'PEPE' }, { sym: 'SOL-USD', name: 'SOL' }
         ];
 
-        const grid = document.getElementById('grid-monitor');
-        const logs = document.getElementById('trade-logs');
-        const coinEl = document.getElementById('target-coin');
-        const actionEl = document.getElementById('target-action');
-        const descEl = document.getElementById('target-desc');
-        const boxEl = document.getElementById('master-box');
-        const confBar = document.getElementById('conf-bar');
-        const confVal = document.getElementById('conf-val');
-        
-        let lastPrices = {};
+        const charts = {};
+        const chartData = {};
+        const mainGrid = document.querySelector('main');
 
-        // Init Grid
+        // SETUP 50 DATA POINTS FOR LONG LINE
+        const DATA_LENGTH = 50; 
+
         assets.forEach(a => {
-            grid.innerHTML += `
-                <div id="card-${a.sym}" class="web3-card p-3 flex flex-col transition-all duration-300">
-                    <p class="text-[8px] font-black text-gray-500 uppercase leading-none">${a.name}</p>
-                    <p id="pr-${a.sym}" class="text-[10px] mono font-bold text-white mt-1">$ 0.00</p>
+            const container = document.createElement('div');
+            container.id = `cont-${a.sym}`;
+            container.className = 'glass neon-border rounded-xl p-3 flex flex-col relative';
+            container.innerHTML = `
+                <div class="flex justify-between items-start mb-1">
+                    <div>
+                        <span class="text-[10px] font-black text-white tracking-tighter italic">${a.name}/USDT</span>
+                        <p class="text-[5px] text-indigo-500 font-bold uppercase mono tracking-widest">Tracing_Active...</p>
+                    </div>
+                    <span id="pr-${a.sym}" class="mono text-[10px] font-black text-indigo-300">$ 0.00</span>
                 </div>
-            `;
+                <div class="flex-1 min-h-0"><canvas id="chart-${a.sym}"></canvas></div>`;
+            mainGrid.appendChild(container);
+
+            chartData[a.sym] = Array(DATA_LENGTH).fill(null);
+            const ctx = document.getElementById(`chart-${a.sym}`).getContext('2d');
+            charts[a.sym] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(DATA_LENGTH).fill(''),
+                    datasets: [{
+                        data: chartData[a.sym],
+                        borderColor: '#6366f1',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        tension: 0.3, // Membuat garis melengkung halus
+                        fill: true,
+                        backgroundColor: (c) => {
+                            const g = c.chart.ctx.createLinearGradient(0, 0, 0, 200);
+                            g.addColorStop(0, 'rgba(99, 102, 241, 0.1)');
+                            g.addColorStop(1, 'rgba(99, 102, 241, 0)');
+                            return g;
+                        }
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+            });
         });
 
+        // MINING SYSTEM
+        let balance = 0.00000000;
+        let active = false;
+        function startMining() {
+            if(active) return;
+            active = true;
+            const btn = document.getElementById('btn-mining');
+            btn.innerText = "MINING_LIVE";
+            btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+            setInterval(() => {
+                balance += Math.random() * 0.00002;
+                document.getElementById('eth-balance').innerHTML = balance.toFixed(8) + " <span class='text-indigo-500 text-xs'>ETH</span>";
+            }, 1000);
+        }
+        function showWD() { document.getElementById('wd-gate').classList.toggle('hidden'); }
+
+        // WEBSOCKET (REALTIME)
         const ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
-        ws.onopen = () => {
-            ws.send(JSON.stringify({ "type": "subscribe", "product_ids": assets.map(a => a.sym), "channels": ["ticker"] }));
-        };
-
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'ticker' && data.price) {
+        ws.onopen = () => ws.send(JSON.stringify({ "type": "subscribe", "product_ids": assets.map(a => a.sym), "channels": ["ticker"] }));
+        ws.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if(data.type === 'ticker' && data.price) {
                 const price = parseFloat(data.price);
-                lastPrices[data.product_id] = price;
-                document.getElementById(`pr-${data.product_id}`).innerText = '$ ' + (price < 1 ? price.toFixed(6) : price.toLocaleString());
+                const sym = data.product_id;
+                document.getElementById(`pr-${sym}`).innerText = '$ ' + price.toLocaleString(undefined, {minimumFractionDigits: (sym.includes('PEPE') ? 6 : 2)});
                 
-                // Pemicu Analisa Acak Berdasarkan Data Asli
-                if(Math.random() > 0.98) runSpecificLogic(data.product_id, price);
+                chartData[sym].shift();
+                chartData[sym].push(price);
+                charts[sym].update('none');
+
+                // SIGNAL LOGIC
+                if(Math.random() > 0.99) {
+                    const dec = Math.random() > 0.5 ? "BUY" : "SELL";
+                    const color = dec === 'BUY' ? '#10b981' : '#ef4444';
+                    document.getElementById('ai-action').innerText = dec;
+                    document.getElementById('ai-action').className = `text-5xl font-black italic tracking-tighter opacity-100 transition-all ${dec === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`;
+                    document.getElementById('ai-target').innerText = `NODE_TARGET: ${sym.split('-')[0]}`;
+                    document.getElementById(`cont-${sym}`).style.borderColor = color;
+                    setTimeout(() => {
+                        document.getElementById(`cont-${sym}`).style.borderColor = 'rgba(99, 102, 241, 0.2)';
+                        document.getElementById('ai-action').innerText = "STABLE";
+                        document.getElementById('ai-action').className = "text-5xl font-black italic tracking-tighter text-white opacity-10";
+                    }, 3000);
+                }
             }
         };
 
-        function runSpecificLogic(symbol, price) {
-            const coinName = symbol.split('-')[0];
-            const decision = Math.random() > 0.5 ? "BUY" : "SELL";
-            const confidence = Math.floor(88 + Math.random() * 11);
+        // SIMULATED DATA
+        setInterval(() => {
+            // Order Book Simulation
+            const ob = document.getElementById('order-book');
+            const type = Math.random() > 0.5 ? 'text-emerald-500' : 'text-red-500';
+            const log = `<div class="flex justify-between border-b border-white/5 pb-1 ${type}"><span>${(Math.random()*10).toFixed(4)} ETH</span><span>${(Math.random()*100).toFixed(2)}%</span></div>`;
+            ob.insertAdjacentHTML('afterbegin', log);
+            if(ob.children.length > 20) ob.lastChild.remove();
 
-            // Update UI Utama
-            coinEl.innerText = `TARGET: ${coinName}`;
-            actionEl.innerText = decision;
-            confVal.innerText = confidence + '%';
-            confBar.style.width = confidence + '%';
-
-            // Reset Card Styles
-            assets.forEach(a => document.getElementById(`card-${a.sym}`).className = "web3-card p-3 flex flex-col");
-            document.getElementById(`card-${symbol}`).className = "web3-card p-3 flex flex-col asset-active";
-
-            if(decision === "BUY") {
-                boxEl.className = "web3-card flex-1 p-8 flex flex-col items-center justify-center text-center transition-all duration-500 signal-buy";
-                actionEl.className = "text-8xl font-black italic tracking-tighter mb-4 text-emerald-500 flash-text";
-                descEl.innerText = `Saran: BELI ${coinName} SEKARANG (@${price.toFixed(4)})`;
-                descEl.className = "bg-emerald-500/10 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/30";
-                addLog(coinName, "BUY ADVICE", `Masuk posisi pada harga market $${price.toFixed(4)}`);
-            } else {
-                boxEl.className = "web3-card flex-1 p-8 flex flex-col items-center justify-center text-center transition-all duration-500 signal-sell";
-                actionEl.className = "text-8xl font-black italic tracking-tighter mb-4 text-red-500 flash-text";
-                descEl.innerText = `Saran: JUAL ${coinName} & AMANKAN PROFIT 5%`;
-                descEl.className = "bg-red-500/10 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-red-400 border border-red-500/30";
-                addLog(coinName, "SELL ADVICE", `Profit tercapai. Amankan saldo 5% sekarang juga!`);
-            }
-        }
-
-        function addLog(coin, type, msg) {
-            const time = new Date().toLocaleTimeString();
-            logs.innerHTML = `
-                <div class="border-b border-white/5 pb-2 mb-2">
-                    <p class="text-[7px] text-gray-500 font-bold uppercase">${time} | SIGNAL_ID: ${Math.floor(Math.random()*10000)}</p>
-                    <p class="text-white font-black italic text-[10px] underline decoration-indigo-500">${coin}: ${type}</p>
-                    <p class="text-indigo-300/60 mt-0.5">${msg}</p>
-                </div>
-            ` + logs.innerHTML;
-            if(logs.children.length > 15) logs.lastChild.remove();
-        }
+            // Forum Simulation
+            const f = document.getElementById('forum');
+            const user = Math.floor(Math.random()*999);
+            const msg = `<div class="bg-white/5 p-2 rounded border-l-2 border-indigo-500 text-[7px]"><span class="text-indigo-400 font-bold uppercase">@User_${user}:</span> Share found on Block #${Math.floor(Math.random()*99999)}</div>`;
+            f.insertAdjacentHTML('afterbegin', msg);
+            if(f.children.length > 15) f.lastChild.remove();
+        }, 3000);
     </script>
 </body>
 </html>
